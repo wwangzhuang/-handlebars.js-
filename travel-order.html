@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅游订单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <link rel="stylesheet" href="css/pullToRefresh.css" />
+    <style>
+        .pullUp{
+            background: #f1f1f1;
+        }
+        .pullDown{
+            background: #f1f1f1;
+        }
+    </style>
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+</head>
+
+<body class="bodyStyle">
+    <div class="common-header">
+        <div class="icon-back"  onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            旅游订单
+        </div>
+        <!--<div class="headerRight searchIcon">-->
+            <!--<a href="javascript:;"></a>-->
+        <!--</div>-->
+    </div>
+    <div id="destination-container" class="orderContainer">
+        <ul class="orderMenu clearfix">
+            <li class="current">
+                <a href="javascript:void(0);" id="travel-order-all" data-page="orderListAll">全部</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" id="travel-order-inquirySeat" data-page="orderListInquirySeat">询位</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" id="travel-order-canpay" data-page="orderListCanpay">待支付</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" id="travel-order-change" data-page="orderListChange">变更中</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" id="travel-order-sure" data-page="orderListSure">已确认</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" id="travel-order-complete" data-page="orderListComplete">已完成</a>
+            </li>
+            <li>
+                <a href="javascript:void(0);" id="travel-order-cancel" data-page="orderListCancel">已取消</a>
+            </li>
+        </ul>
+        <div class="ordercontent">
+            <div class="orderContainer" id="wrapper">
+                <ul class="orderList" id="temp-list">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/iscroll.js"></script>
+    <script src="js/pullToRefresh.js"></script>
+
+
+    <!--列表渲染模板-->
+    <script id="travelOrder-template" type="text/x-handlebars-template">
+        {{#each GetOrderListResponse.orderListBeans}}
+        <li>
+            <a href="order-details.html" class="travel-orderlist-link" data-travelorderID="{{this.orderId}}" data-travelorderPrice="{{this.totalOrderFee}}">
+                <div class="orderTitlePrice clearfix">
+                    <div class="orderTitleFonts">{{this.routeName}}</div>
+                    <div class="orderPrice">
+                        <b>￥{{this.totalOrderFee}}</b>
+                    </div>
+                </div>
+                <div class="orderMessage">
+                    <div>
+                        <span class="dateIcon"></span>
+                        <span>出发日期：</span>
+                        <span>{{this.departureDate}} ({{this.numOfday}}天)</span>
+                    </div>
+                    <div>
+                        <span class="placeIcon"></span>
+                        <span>出发地：</span>
+                        <span>{{this.sourcePlace}}</span>
+                    </div>
+                    <div>
+                        <span class="orderIcon"></span>
+                        <span>订单号：</span>
+                        <span>{{this.orderId}}</span>
+                    </div>
+                    <div class="statusFonts">{{orderStatus this.state}}</div>
+                </div>
+            </a>
+        </li>
+        {{/each}}
+    </script>
+
+    <script>
+        Handlebars.registerHelper('orderStatus', function (str) {
+            if (str == "confirm") {
+                return "确认";
+            } else if (str == "cancel") {
+                return "取消";
+            } else if (str == "complete") {
+                return "完成";
+            } else if (str == "canPay") {
+                return "待支付";
+            } else if (str == "changing") {
+                return "变更中";
+            } else if (str == "inquirySeatPro_processing") {
+                return "询位";
+            } else {
+                return "其他";
+            }
+        });
+
+        function mineInfoBack(){
+            window.location.href = "my.html";
+        };
+        
+        $(function () {
+            drawList();
+        })
+
+
+        // 页面初始变量
+        var routeDetail = {};
+        routeDetail.page = "1";
+        routeDetail.pageSize = "10";
+        routeDetail.purCustomerKey = defaultLoginrespon().apiUserName;
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.GetOrderListRequest = routeDetail;
+        var url = travelLink();
+        // if (window.localStorage.orderStatus) {
+        //     routeDetail.tabState = window.localStorage.orderStatus;
+        // } else {
+        //     routeDetail.tabState = "all";
+        // }
+
+        
+
+
+        // 列表渲染方法
+        function drawList() {
+            clearList();
+            routeDetail.page = "1";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                async: false,
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    
+                        var myTemplate = Handlebars.compile($("#travelOrder-template").html());
+                        $('#temp-list').html(myTemplate(data));
+
+                        setColor();
+
+                        refresher.init({
+                            id: "wrapper",
+                            pullUpAction: Load
+                        })
+
+                        function Load() {
+                            setTimeout(function () {
+                                appendList();
+                                wrapper.refresh();
+                            }, 500);
+                        }
+                    
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+        // 列表加载数据方法
+        function appendList() {
+            routeDetail.page++;
+            $.ajax({
+                url: url,
+                async: false,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    var myTemplate = Handlebars.compile($("#travelOrder-template").html());
+                    $('#temp-list').append(myTemplate(data));
+                    setColor();
+                }
+            });
+        }
+
+
+        // 清空列表方法
+        function clearList(){
+            $('#wrapper').remove();
+            $('.ordercontent').html('<div class="orderContainer" id="wrapper"><ul class="orderList" id="temp-list"></ul></div>')
+        }
+
+        // 设置颜色方法
+        function setColor() {
+            $(".statusFonts").each(function () {
+                var status = $(this).text();
+                if (status == "确认") {
+                    $(this).addClass("blue");
+                } else if (status == "取消") {
+                    $(this).addClass("gray");
+                } else if (status == "完成") {
+                    $(this).addClass("blue");
+                } else if (status == "待支付") {
+                    $(this).addClass("red");
+                } else if (status == "变更中") {
+                    $(this).addClass("red");
+                } else if (status == "询位") {
+                    $(this).addClass("red");
+                }
+            })
+        }
+
+
+        mui(document).on('tap', '.orderList>li', function () {
+            var localStorage = window.localStorage;
+            localStorage.travelorderID = $(this).find('a').data('travelorderid');
+            localStorage.travelorderPrice = $(this).find('a').data('travelorderprice');
+            document.location.href = $(this).find('a').attr('href');
+        })
+
+        // $(".orderMenu li").each(function (index) {
+        //     $(this).click(function () {
+        //         var ids = $(this).find('a').data('page')
+        //         $(".orderMenu li").removeClass("current");
+        //         $(this).addClass("current");
+        //         $('.ordercontent').hide();
+        //         $('#' + ids).closest('.ordercontent').show();
+        //     });
+        // });
+        $(".orderMenu li").on('click',function(){
+            $(this).addClass('current');
+            $(".orderMenu li").not(this).removeClass("current");
+        })
+
+
+
+
+        //全部
+        $("#travel-order-all").click(function () {
+            routeDetail.tabState = "all";
+            drawList();
+        });
+
+        //询位
+        $("#travel-order-inquirySeat").click(function () {
+            routeDetail.tabState = "inquirySeatPro_processing";
+            drawList();
+        });
+
+        //待支付
+        $("#travel-order-canpay").click(function () {
+            routeDetail.tabState = "canPay";
+            drawList();
+        });
+
+        //变更中
+        $("#travel-order-change").click(function () {
+            routeDetail.tabState = "changing";
+            drawList();
+        });
+
+        //已确认
+        $("#travel-order-sure").click(function () {
+            routeDetail.tabState = "confirm";
+            drawList();
+        });
+
+        //已完成
+        $("#travel-order-complete").click(function () {
+            routeDetail.tabState = "complete";
+            drawList();
+        });
+
+        //已取消
+        $("#travel-order-cancel").click(function () {
+            routeDetail.tabState = "cancel";
+            drawList();
+        });
+    </script>
+
+</body>
+
+</html>

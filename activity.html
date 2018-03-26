@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>产品详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <style>
+        .swiper-container {
+            height: 4.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            活动专区
+        </div>
+    </div>
+
+    <div class="xsms" id="xsms_activity">
+
+    </div>
+
+
+
+    <div class="czys" id="czys_activity">
+
+    </div>
+
+
+    <div class="tgrm" id="tgrm_activity">
+
+    </div>
+
+
+    <div class="wdtj" id="wdtj_activity">
+
+    </div>
+
+
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/common-method.js"></script>
+
+    <!--限时秒杀模板-->
+    <script id="template-xsms" type="text/x-handlebars-template">
+        <div class="common-activity-title clearfix">
+            <div class="common-activity-title-l"><i class="xsms-x"><img src="{{imgLink}}{{SearchHotProductCategoryResponse.products.[0].minTitle}}"></i>&nbsp;{{SearchHotProductCategoryResponse.products.[0].productTypeName}} &nbsp;<span style="color:red;font-size:.22rem">{{activityText SearchHotProductCategoryResponse.products.[0].products.[0].status}}</span>
+                <span class="activity-timeout"></span>
+            </div>
+            <div class="common-activity-more">
+                {{#activityListType SearchHotProductCategoryResponse.products.[0].productTypeName}}
+                <a href="activity-list-time.html?productKey={{SearchHotProductCategoryResponse.products.[0].productTypeKey}}&minTitle={{SearchHotProductCategoryResponse.products.[0].minTitle}}">更多 ></a> {{else}}
+                <a href="activity-list.html?productKey={{SearchHotProductCategoryResponse.products.[0].productTypeKey}}&productTitle={{SearchHotProductCategoryResponse.products.[0].productTypeName}}&minTitle={{SearchHotProductCategoryResponse.products.[0].minTitle}}">更多 ></a>                {{/activityListType}}
+            </div>
+        </div>
+        <a href="activity-detail.html?routeId={{SearchHotProductCategoryResponse.products.[0].products.[0].productKey}}&beginDate={{SearchHotProductCategoryResponse.products.[0].products.[0].beginDate}}&endDate={{SearchHotProductCategoryResponse.products.[0].products.[0].endDate}}&minTitle={{SearchHotProductCategoryResponse.products.[0].minTitle}}"
+            data-proID="{{routeId}}" style="display:block;">
+            <div class="xsms-details">
+                <!--<div class="sell-none"></div>-->
+                <img src="{{SearchHotProductCategoryResponse.products.[0].products.[0].url}}" alt="">
+                <p class="xsms-product"><i><img src="{{activityStatus SearchHotProductCategoryResponse.products.[0].products.[0].status}}" alt=""></i> <span class="oneLineEllipsis">{{SearchHotProductCategoryResponse.products.[0].products.[0].productName}}</span></p>
+            </div>
+            <div class="xsms-cont">
+                <div class="xsms-price clearfix"><span class="xsms-yh">活动价¥<span>{{SearchHotProductCategoryResponse.products.[0].products.[0].promotionPrice}}</span></span><span class="xsms-q">{{activityHtmlAction SearchHotProductCategoryResponse.products.[0].products.[0].status}}</span>                    {{#activitySignShow SearchHotProductCategoryResponse.products.[0].products.[0].status}}
+                    <span class="pless">余{{SearchHotProductCategoryResponse.products.[0].products.[0].numberOfRemain}}份</span> {{/activitySignShow}}
+                </div>
+            </div>
+        </a>
+        <div class="common-break"></div>
+    </script>
+
+    <!--超值预售模板-->
+    <script id="template-czys" type="text/x-handlebars-template">
+        <div class="common-activity-title clearfix">
+            <div class="common-activity-title-l"><i class="xsms-x"><img src="{{imgLink}}{{SearchHotProductCategoryResponse.products.[1].minTitle}}"></i>&nbsp;{{SearchHotProductCategoryResponse.products.[1].productTypeName}} </div>
+            <div class="common-activity-more"><a href="activity-list.html?productKey={{SearchHotProductCategoryResponse.products.[1].productTypeKey}}&productTitle={{SearchHotProductCategoryResponse.products.[1].productTypeName}}&minTitle={{SearchHotProductCategoryResponse.products.[1].minTitle}}">更多 ></a></div>
+        </div>
+        <ul class="czys-wrap">
+            {{#each SearchHotProductCategoryResponse.products.[1].products}}
+            <li class="czys-list">
+                <a href="activity-detail.html?routeId={{productKey}}&beginDate={{beginDate}}&endDate={{endDate}}&minTitle={{minTitle}}" data-proID="{{routeId}}">
+                    <div class="czys-top">{{#sellCountNone numberOfRemain}}
+                        <div class="sell-none"></div>{{/sellCountNone}}<img src="{{url}}"><i class="czys-biaoqian">
+                        {{#activityCzysType productTypeName}}
+                            <img src="images/czzk@2x.png" alt="">
+                        {{/activityCzysType}}
+                        </i><span class="czys-cont">{{activityText status}}<span class="czys-timeout"></span></span>
+                    </div>
+                    <div class="czys-title">
+                        <p class="czys-title-t">
+                            <img src="{{activityStatus status}}" alt=""> {{productName}}
+                        </p>
+                        <div class="czys-title-b clearfix">
+                            <div class="czys-title-price">
+                                {{#activityLabelShow label1 label2}}
+                                <div class="label-block">
+                                    {{#activitysubLabelShow label1}}
+                                    <span class="czys-ct">{{label1}}</span> {{/activitysubLabelShow}} {{#activitysubLabelShow label2}}
+                                    <span class="czys-ct">{{label2}}</span> {{/activitysubLabelShow}}
+                                </div>
+                                {{/activityLabelShow}}
+                                <!--<p>05:33:27后开售</p>-->
+                                <p class="czys-title-p">¥<span>{{promotionPrice}}</span>&nbsp;&nbsp;&nbsp; {{#activitySignShow status}}
+                                    <span class="tgrm-less">余<span>{{numberOfRemain}}</span>份</span>
+                                    {{/activitySignShow}}
+                                </p>
+                            </div>
+                            <div class="czys-title-buy mt04"><img src="{{activityModelImgStatus status}}" alt=""></div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {{/each}}
+        </ul>
+        <div class="common-break"></div>
+    </script>
+
+    <!--团购热卖模板-->
+    <script id="template-tgrm" type="text/x-handlebars-template">
+        <div class="common-activity-title clearfix">
+            <div class="common-activity-title-l"><i class="xsms-x"><img src="{{imgLink}}{{SearchHotProductCategoryResponse.products.[2].minTitle}}"></i>&nbsp;{{SearchHotProductCategoryResponse.products.[2].productTypeName}} </div>
+            <div class="common-activity-more"><a href="activity-list.html?productKey={{SearchHotProductCategoryResponse.products.[2].productTypeKey}}&productTitle={{SearchHotProductCategoryResponse.products.[2].productTypeName}}&minTitle={{SearchHotProductCategoryResponse.products.[2].minTitle}}">更多 ></a></div>
+        </div>
+
+        <ul class="tgrm-wrap">
+            {{#each SearchHotProductCategoryResponse.products.[2].products}}
+            <li class="tgrm-list">
+                <a href="activity-detail.html?routeId={{productKey}}&beginDate={{beginDate}}&endDate={{endDate}}&minTitle={{minTitle}}" data-proID="{{routeId}}" style="display:block;">
+                    <div class="czys-top">{{#sellCountNone numberOfRemain}}
+                        <div class="sell-none"></div>{{/sellCountNone}}<img src="{{url}}"> {{#activityLabelShow label1 label2}}
+                        <div class="czys-biaoqian bgred">
+                            {{#activitysubLabelShow label1}}
+                            <span>{{label1}}</span> {{/activitysubLabelShow}} {{#activityAllLabelShow label1 label2}} 丨 {{/activityAllLabelShow}} {{#activitysubLabelShow label2}}
+                            <span>{{label2}}</span> {{/activitysubLabelShow}}
+                        </div>
+                        {{/activityLabelShow}}
+                        <span class="czys-cont">{{activityText status}}<span class="tgrm-timeout"></span></span>
+                    </div>
+                    <div class="czys-title">
+                        <p class="czys-title-t"><img src="{{activityStatus status}}" alt=""> {{productName}} </p>
+                        <div class="h33">
+                            {{#activitySignShow status}}
+                            <span class="tgrm-less" style="display:block;">余<span>{{numberOfRemain}}</span>份</span>
+                            {{/activitySignShow}}
+                        </div>
+                        <div class="czys-title-b clearfix">
+                            <div class="czys-title-price">
+                                <!--<p>05:33:27后开售</p>-->
+                                <p class="czys-title-p">¥<span>{{promotionPrice}}</span></p>
+                            </div>
+                            <div class="czys-title-buy"><img src="{{activityModelImgStatus status}}" alt=""></div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {{/each}}
+        </ul>
+        <div class="common-break"></div>
+    </script>
+
+
+    <!--尾单特价模板-->
+    <script id="template-wdtj" type="text/x-handlebars-template">
+        <div class="common-activity-title clearfix">
+            <div class="common-activity-title-l"><i class="xsms-x"><img src="{{imgLink}}{{SearchHotProductCategoryResponse.products.[3].minTitle}}"></i>&nbsp;{{SearchHotProductCategoryResponse.products.[3].productTypeName}} </div>
+            <div class="common-activity-more"><a href="activity-list.html?productKey={{SearchHotProductCategoryResponse.products.[3].productTypeKey}}&productTitle={{SearchHotProductCategoryResponse.products.[3].productTypeName}}&minTitle={{SearchHotProductCategoryResponse.products.[3].minTitle}}">更多 ></a></div>
+        </div>
+        <ul>
+            {{#each SearchHotProductCategoryResponse.products.[3].products}}
+            <li class="wdtj-list clearfix">
+                <a href="activity-detail.html?routeId={{productKey}}&beginDate={{beginDate}}&endDate={{endDate}}&minTitle={{minTitle}}" data-proID="{{routeId}}">
+                    <div class="czys-top">
+                        {{#sellCountNone numberOfRemain}}
+                        <div class="sell-none"></div>{{/sellCountNone}}
+                        <img src="{{url}}"> {{#activityLabelShow label1 label2}}
+                        <div class="czys-biaoqian bgred">
+                            {{#activitysubLabelShow label1}}
+                            <span>{{label1}}</span> {{/activitysubLabelShow}} {{#activityAllLabelShow label1 label2}} 丨 {{/activityAllLabelShow}} {{#activitysubLabelShow label2}}
+                            <span>{{label2}}</span> {{/activitysubLabelShow}}
+                        </div>
+                        {{/activityLabelShow}}<span class="czys-cont">{{activityText status}}<span class="wdtj-timeout"></span></span>
+                    </div>
+                    <div class="czys-title">
+                        <p class="czys-title-t" style="margin-bottom:0;"><img src="{{activityStatus status}}" alt=""> {{productName}} </p>
+                        {{#activitySignShow status}}
+                        <span class="tgrm-less" style="display:block;">余<span>{{numberOfRemain}}</span>份</span>
+                        {{/activitySignShow}}
+                        <div class="czys-title-b clearfix">
+                            <div class="czys-title-price">
+                                <!--<p>05:33:27后开售</p>-->
+                                <p class="czys-title-p">¥<span>{{promotionPrice}}</span></p>
+                            </div>
+                            <div class="czys-title-buy"><img src="{{activityModelImgStatus status}}" alt=""></div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {{/each}}
+        </ul>
+    </script>
+
+
+
+    <script>
+        window.localStorage.activityListTime = 2;
+        var iCountParam = [];
+        for (var i = 0; i < 10000; i++) {
+            iCountParam[i] = i;
+        }
+
+        var iCountParamSec = [];
+        for (var i = 0; i < 10000; i++) {
+            iCountParamSec[i] = "a" + i;
+        }
+
+        var iCountParamThird = [];
+        for (var i = 0; i < 10000; i++) {
+            iCountParamThird[i] = "b" + i;
+        }
+
+        var iCountParamFor = [];
+        for (var i = 0; i < 10000; i++) {
+            iCountParamFor[i] = "c" + i;
+        }
+
+        var activityData = {};
+
+        function mineInfoBack() {
+            window.location.href = "index.html";
+        }
+
+        function travellerProductCategoryRequest() {
+            var routeDetail = {};
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.SearchHotProductCategoryRequest = routeDetail;
+            var url = activityLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+                    if (data.responseMetaInfo.resultCode == 0) {
+                        if (data.SearchHotProductCategoryResponse.products.length >= 1) {
+                            var myTemplate = Handlebars.compile($("#template-xsms").html());
+                            $('#xsms_activity').html(myTemplate(data));
+
+
+                            if (parseInt(data.SearchHotProductCategoryResponse.products[0].productCount) <= 1) {
+                                $(".xsms .common-activity-more").hide();
+                            }
+                        }
+
+                        if (data.SearchHotProductCategoryResponse.products.length >= 2) {
+                            for (var i = 0; i < data.SearchHotProductCategoryResponse.products[1].products.length; i++) {
+                                data.SearchHotProductCategoryResponse.products[1].products[i].productTypeName = data.SearchHotProductCategoryResponse.products[1].productTypeName;
+                                data.SearchHotProductCategoryResponse.products[1].products[i].minTitle = data.SearchHotProductCategoryResponse.products[1].minTitle;
+                            }
+                            var myTemplate = Handlebars.compile($("#template-czys").html());
+                            $('#czys_activity').html(myTemplate(data));
+
+
+                            if (parseInt(data.SearchHotProductCategoryResponse.products[1].productCount) <= 3) {
+                                $(".czys .common-activity-more").hide();
+                            }
+                        }
+
+
+                        if (data.SearchHotProductCategoryResponse.products.length >= 3) {
+                            for (var i = 0; i < data.SearchHotProductCategoryResponse.products[2].products.length; i++) {
+                                data.SearchHotProductCategoryResponse.products[2].products[i].productTypeName = data.SearchHotProductCategoryResponse.products[2].productTypeName;
+                                data.SearchHotProductCategoryResponse.products[2].products[i].minTitle = data.SearchHotProductCategoryResponse.products[2].minTitle;
+                            }
+                            var myTemplate = Handlebars.compile($("#template-tgrm").html());
+                            $('#tgrm_activity').html(myTemplate(data));
+
+
+                            if (parseInt(data.SearchHotProductCategoryResponse.products[2].productCount) <= 4) {
+                                $(".tgrm .common-activity-more").hide();
+                            }
+                        }
+
+
+                        if (data.SearchHotProductCategoryResponse.products.length >= 4) {
+                            for (var i = 0; i < data.SearchHotProductCategoryResponse.products[3].products.length; i++) {
+                                data.SearchHotProductCategoryResponse.products[3].products[i].productTypeName = data.SearchHotProductCategoryResponse.products[3].productTypeName;
+                                data.SearchHotProductCategoryResponse.products[3].products[i].minTitle = data.SearchHotProductCategoryResponse.products[3].minTitle;
+                            }
+                            var myTemplate = Handlebars.compile($("#template-wdtj").html());
+                            $('#wdtj_activity').html(myTemplate(data));
+
+                            if (parseInt(data.SearchHotProductCategoryResponse.products[3].productCount) <= 4) {
+                                $(".wdtj .common-activity-more").hide();
+                            }
+                        }
+
+                        activityData = data;
+                        if (data.SearchHotProductCategoryResponse.products.length >= 1) {
+                            var firstTime = data.SearchHotProductCategoryResponse.products[0].products[0].beginDate;
+                            var endTime = data.SearchHotProductCategoryResponse.products[0].products[0].endDate;
+                            var serverTime = data.SearchHotProductCategoryResponse.products[0].openApiServerDate;
+                            firstTimerOutAction((parseInt(firstTime)), (parseInt(endTime)), (parseInt(serverTime)))
+                        }
+
+                        if (data.SearchHotProductCategoryResponse.products.length >= 2) {
+                            for (var i = 0; i < data.SearchHotProductCategoryResponse.products[1].products.length; i++) {
+                                var firstTime = data.SearchHotProductCategoryResponse.products[1].products[i].beginDate;
+                                var endTime = data.SearchHotProductCategoryResponse.products[1].products[i].endDate;
+                                var serverTime = data.SearchHotProductCategoryResponse.products[1].openApiServerDate;
+                                secondTimerOutAction((parseInt(firstTime)), (parseInt(endTime)), (parseInt(serverTime)), i)
+                            }
+                        }
+
+                        if (data.SearchHotProductCategoryResponse.products.length >= 3) {
+                            for (var i = 0; i < data.SearchHotProductCategoryResponse.products[2].products.length; i++) {
+                                var firstTime = data.SearchHotProductCategoryResponse.products[2].products[i].beginDate;
+                                var endTime = data.SearchHotProductCategoryResponse.products[2].products[i].endDate;
+                                var serverTime = data.SearchHotProductCategoryResponse.products[2].openApiServerDate;
+                                thirdTimerOutAction((parseInt(firstTime)), (parseInt(endTime)), (parseInt(serverTime)), i)
+                            }
+                        }
+
+                        if (data.SearchHotProductCategoryResponse.products.length >= 4) {
+                            for (var i = 0; i < data.SearchHotProductCategoryResponse.products[3].products.length; i++) {
+                                var firstTime = data.SearchHotProductCategoryResponse.products[3].products[i].beginDate;
+                                var endTime = data.SearchHotProductCategoryResponse.products[3].products[i].endDate;
+                                var serverTime = data.SearchHotProductCategoryResponse.products[3].openApiServerDate;
+                                forthTimerOutAction((parseInt(firstTime)), (parseInt(endTime)), (parseInt(serverTime)), i)
+                            }
+                        }
+
+                    }
+                },
+                error: function() {
+
+                }
+            });
+        }
+
+        function firstTimerOutAction(beginTime, endTime, serverTime) {
+
+            var activityStartTime = beginTime;
+            var activityEndTime = endTime;
+            var currServerTime = serverTime;
+
+            var time; //= starttime - nowtime;
+
+            iCountParam[i] = setInterval(function() {
+
+                var day = parseInt(time / 1000 / 60 / 60 / 24);
+                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                var minute = parseInt(time / 1000 / 60 % 60);
+                var seconds = parseInt(time / 1000 % 60);
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (seconds <= 9) seconds = '0' + seconds;
+                //倒计时-1s
+                time = time - 1000;
+                //当前时间+1s
+                currServerTime = currServerTime + 1000;
+
+                //                    console.log(time);
+                if (day == '00' && hour == '00' && minute == '00' && seconds == '00') {
+                    if (activityStartTime > currServerTime) //等待开始
+                    {
+                        time = currServerTime - activityStartTime;
+                    } else {
+                        if (activityEndTime > currServerTime) //活动中
+                        {
+                            time = activityEndTime - currServerTime;
+                            activityData.SearchHotProductCategoryResponse.products[0].products[0].status = 'runing'
+                            var myTemplate = Handlebars.compile($("#template-xsms").html());
+                            $('#xsms_activity').html(myTemplate(activityData));
+                        } else //结束
+                        {
+
+                            activityData.SearchHotProductCategoryResponse.products[0].products[0].status = 'end'
+                            var myTemplate = Handlebars.compile($("#template-xsms").html());
+                            $('#xsms_activity').html(myTemplate(activityData));
+                            $('.activity-timeout').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                            clearInterval(iCountParam[i]);
+                        }
+                    }
+                }
+                if (day == '00') {
+                    $('.activity-timeout').html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                } else {
+                    day = parseInt(day);
+                    $('.activity-timeout').html("<i>" + day + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+            }, 1000);
+
+
+            if (activityStartTime > currServerTime) //等待开始
+            {
+                time = activityStartTime - currServerTime;
+            } else {
+                if (activityEndTime > currServerTime) //活动中
+                {
+                    time = activityEndTime - currServerTime;
+                } else //结束
+                {
+                    $('.activity-timeout').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                    clearInterval(iCountParam[i]);
+                }
+            }
+        }
+
+        function secondTimerOutAction(beginTime, endTime, serverTime, i) {
+
+            var activityStartTime = beginTime;
+            var activityEndTime = endTime;
+            var currServerTime = serverTime;
+
+            var time; //= starttime - nowtime;
+
+            iCountParamSec[i] = setInterval(function() {
+
+                var day = parseInt(time / 1000 / 60 / 60 / 24);
+                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                var minute = parseInt(time / 1000 / 60 % 60);
+                var seconds = parseInt(time / 1000 % 60);
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (seconds <= 9) seconds = '0' + seconds;
+                //倒计时-1s
+                time = time - 1000;
+                //当前时间+1s
+                currServerTime = currServerTime + 1000;
+
+                //                    console.log(time);
+                if (day == '00' && hour == '00' && minute == '00' && seconds == '00') {
+                    if (activityStartTime > currServerTime) //等待开始
+                    {
+                        time = currServerTime - activityStartTime;
+                    } else {
+                        if (activityEndTime > currServerTime) //活动中
+                        {
+                            time = activityEndTime - currServerTime;
+                            activityData.SearchHotProductCategoryResponse.products[1].products[i].status = 'runing'
+                            var myTemplate = Handlebars.compile($("#template-czys").html());
+                            $('#czys_activity').html(myTemplate(activityData));
+                        } else //结束
+                        {
+
+                            activityData.SearchHotProductCategoryResponse.products[1].products[i].status = 'end'
+                            var myTemplate = Handlebars.compile($("#template-czys").html());
+                            $('#czys_activity').html(myTemplate(activityData));
+
+                            $('.czys-timeout').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                            clearInterval(iCountParamSec[i]);
+                        }
+                    }
+                }
+                if (day == '00') {
+                    $('.czys-timeout').eq(i).html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                } else {
+                    day = parseInt(day);
+                    $('.czys-timeout').eq(i).html("<i>" + day + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+            }, 1000);
+
+
+            if (activityStartTime > currServerTime) //等待开始
+            {
+                time = activityStartTime - currServerTime;
+            } else {
+                if (activityEndTime > currServerTime) //活动中
+                {
+                    time = activityEndTime - currServerTime;
+                } else //结束
+                {
+                    $('.czys-timeout').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                    clearInterval(iCountParamSec[i]);
+                }
+            }
+        }
+
+        function thirdTimerOutAction(beginTime, endTime, serverTime, i) {
+
+            var activityStartTime = beginTime;
+            var activityEndTime = endTime;
+            var currServerTime = serverTime;
+
+            var time; //= starttime - nowtime;
+
+            iCountParamThird[i] = setInterval(function() {
+
+                var day = parseInt(time / 1000 / 60 / 60 / 24);
+                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                var minute = parseInt(time / 1000 / 60 % 60);
+                var seconds = parseInt(time / 1000 % 60);
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (seconds <= 9) seconds = '0' + seconds;
+                //倒计时-1s
+                time = time - 1000;
+                //当前时间+1s
+                currServerTime = currServerTime + 1000;
+
+                //                    console.log(time);
+                if (day == '00' && hour == '00' && minute == '00' && seconds == '00') {
+                    if (activityStartTime > currServerTime) //等待开始
+                    {
+                        time = currServerTime - activityStartTime;
+                    } else {
+                        if (activityEndTime > currServerTime) //活动中
+                        {
+                            time = activityEndTime - currServerTime;
+                            activityData.SearchHotProductCategoryResponse.products[2].products[i].status = 'runing'
+                            var myTemplate = Handlebars.compile($("#template-tgrm").html());
+                            $('#tgrm_activity').html(myTemplate(activityData));
+                        } else //结束
+                        {
+
+                            activityData.SearchHotProductCategoryResponse.products[2].products[i].status = 'end'
+                            var myTemplate = Handlebars.compile($("#template-tgrm").html());
+                            $('#tgrm_activity').html(myTemplate(activityData));
+                            $('.tgrm-timeout').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                            clearInterval(iCountParamThird[i]);
+                        }
+                    }
+                }
+                if (day == '00') {
+                    $('.tgrm-timeout').eq(i).html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                } else {
+                    day = parseInt(day);
+                    $('.tgrm-timeout').eq(i).html("<i>" + day + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+            }, 1000);
+
+
+            if (activityStartTime > currServerTime) //等待开始
+            {
+                time = activityStartTime - currServerTime;
+            } else {
+                if (activityEndTime > currServerTime) //活动中
+                {
+                    time = activityEndTime - currServerTime;
+                } else //结束
+                {
+                    $('.tgrm-timeout').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                    clearInterval(iCountParamThird[i]);
+                }
+            }
+        }
+
+        function forthTimerOutAction(beginTime, endTime, serverTime, i) {
+
+            var activityStartTime = beginTime;
+            var activityEndTime = endTime;
+            var currServerTime = serverTime;
+
+            var time; //= starttime - nowtime;
+
+            iCountParamFor[i] = setInterval(function() {
+
+                var day = parseInt(time / 1000 / 60 / 60 / 24);
+                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                var minute = parseInt(time / 1000 / 60 % 60);
+                var seconds = parseInt(time / 1000 % 60);
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (seconds <= 9) seconds = '0' + seconds;
+                //倒计时-1s
+                time = time - 1000;
+                //当前时间+1s
+                currServerTime = currServerTime + 1000;
+
+                //                    console.log(time);
+                if (day == '00' && hour == '00' && minute == '00' && seconds == '00') {
+                    if (activityStartTime > currServerTime) //等待开始
+                    {
+                        time = currServerTime - activityStartTime;
+                    } else {
+                        if (activityEndTime > currServerTime) //活动中
+                        {
+                            time = activityEndTime - currServerTime;
+                            activityData.SearchHotProductCategoryResponse.products[3].products[i].status = 'runing'
+                            var myTemplate = Handlebars.compile($("#template-wdtj").html());
+                            $('#wdtj_activity').html(myTemplate(activityData));
+                        } else //结束
+                        {
+
+                            activityData.SearchHotProductCategoryResponse.products[3].products[i].status = 'end'
+                            var myTemplate = Handlebars.compile($("#template-wdtj").html());
+                            $('#wdtj_activity').html(myTemplate(activityData));
+                            $('.wdtj-timeout').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                            clearInterval(iCountParamFor[i]);
+                        }
+                    }
+                }
+                if (day == '00') {
+                    $('.wdtj-timeout').eq(i).html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                } else {
+                    day = parseInt(day);
+                    $('.wdtj-timeout').eq(i).html("<i>" + day + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+            }, 1000);
+
+
+            if (activityStartTime > currServerTime) //等待开始
+            {
+                time = activityStartTime - currServerTime;
+            } else {
+                if (activityEndTime > currServerTime) //活动中
+                {
+                    time = activityEndTime - currServerTime;
+                } else //结束
+                {
+                    $('.wdtj-timeout').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                    clearInterval(iCountParamFor[i]);
+                }
+            }
+        }
+
+        $(function() {
+            travellerProductCategoryRequest();
+            document.addEventListener("visibilitychange", function() {
+                window.location.reload();
+                return false;
+            }, false);
+            //            var starttime = new Date("2017-11-10 10:10:10");
+            //            setInterval(function () {
+            //                var nowtime = new Date();
+            //                var time = starttime - nowtime;
+            //                var day = parseInt(time / 1000 / 60 / 60 / 24);
+            //                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+            //                var minute = parseInt(time / 1000 / 60 % 60);
+            //                var seconds = parseInt(time / 1000 % 60);
+            //                if (day <= 9) day = '0' + day;
+            //                if (hour <= 9) hour = '0' + hour;
+            //                if (minute <= 9) minute = '0' + minute;
+            //                if (seconds <= 9) seconds = '0' + seconds;
+            //                $('.activity-timeout').html(  hour + ":" + minute +
+            //                    ":"  + seconds );
+            //            }, 1000);
+        })
+    </script>
+</body>
+
+</html>

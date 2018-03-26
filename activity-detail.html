@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>活动专区详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back">
+            <a href="#" onclick="mineInfoBack()"></a>
+        </div>
+        <div class="common-title">活动详情</div>
+    </div>
+    <div class="proDetail-container" id="temp-content">
+    </div>
+    <div class="proDetail-bottom" id="activityDetail-class">
+        <span id="activityDetail-commit">
+            开始预定
+        </span>
+    </div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/jquery.sha1.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/common-method.js"></script>
+    <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script src="js/common-method.js"></script>
+
+    <script id="template-content" type="text/x-handlebars-template">
+        <header>
+            <div class="bannerModule">
+                <div class="bannerImg">
+                    <img src="{{GetRouteDetailResponse.carouseImages.[0].imageUrl}}" alt="">
+                </div>
+                <div class="bannerBottom clearfix">
+                    <span class="leftBlueBg">
+                        <span class="endHintFonts" id="activityDetail-text">距结束仅剩</span>
+                        <span class="endHintTime"></span>
+                    </span>
+                    <span class="rightRedBg">
+                        {{#priceBalance01 adultAdvicePrice adultDefaultPrice}}
+                        <del class="delFonts">{{adultAdvicePrice}}</del>
+                        {{/priceBalance01}}
+                        <div class="currentPrice">
+                            <em>活动价</em>
+                            <em>￥</em>
+                            <em class="fontSize45">{{adultDefaultPrice}}</em>
+                        </div>
+                        <i class="leftYellowArrowIcon"></i>
+                    </span>
+                </div>
+            </div>
+        </header>
+        <div class="mod">
+            <p class="pro-name">
+                <i class="activity-type"><img src="" id="activityDetail-imgSource"></i>
+                <i class="activity-status">
+                    <img id="activityDetail-img" src="">
+                </i>
+                {{GetRouteDetailResponse.saleRouteName}}
+            </p>
+            <div class="productNumber">产品编号：{{GetRouteDetailResponse.routeId}}</div>
+            <div class="dia-price">
+                <span class="dpc dp1">{{productItemStatus GetRouteDetailResponse.diamondLevel}}</span>
+                <div class="dpc dp2">
+                    <img src="{{productLevelStatus GetRouteDetailResponse.diamondLevel}}" alt="">
+                </div>
+                <!--{{#priceBalance01 adultAdvicePrice adultDefaultPrice}}<span class="dpc dp3">￥{{adultAdvicePrice}}</span>{{/priceBalance01}}-->
+                <!--<div class="dpc dp4">-->
+                    <!--<span class="sp1">￥</span>{{#priceBalance02 adultAdvicePrice adultDefaultPrice}}<span class="sp2">{{adultDefaultPrice}} </span>{{/priceBalance02}}起-->
+                <!--</div>-->
+                <i class="dpc dp5 act-bq" id="showPop"><img src="{{imgItemStatus GetRouteDetailResponse.routeForm}}" alt=""></i>
+            </div>
+            <div class="icon-title">
+                <i class="i-date"></i>出团日期
+            </div>
+            <ul class="date-list clearfix">
+                <li class="lastOne">
+                    <a href="team-calendar.html?routeId={{GetRouteDetailResponse.routeId}}">
+                        <img src="images/icon-right.png" alt="" class="i-right">
+                    </a>
+                </li>
+            </ul>
+            <div class="icon-title">
+                <i class="i-cpjltj"></i>产品经理推荐
+            </div>
+            <div class="commend-content seeMore-content" id="seeMore_content">
+                {{{GetRouteDetailResponse.recommend}}}
+            </div>
+            <div class="toggle-box" id="seeMore_box">
+                <span>查看全部</span><i class="seeMore"></i>
+            </div>
+        </div>
+        <div class="mod">
+            <nav class="center-nav clearfix">
+                <a href="#anchor1" class="active">行程路线</a>
+                <a href="#anchor2" class="hh">费用说明</a>
+                <a href="#anchor3" class="hh">预定须知</a>
+            </nav>
+            <div class="icon-title">
+                <i class="i-xcjj"></i>行程简介
+            </div>
+            <ul class="day-list">
+                {{#each GetRouteDetailResponse.scenicRoutes}}
+                <li class="clearfix">
+                    <div class="day-num">
+                        Day {{indx}}
+                    </div>
+                    <div class="place">
+                        <h5>{{title}}</h5>
+                        <p class="yc"><span>用餐：</span>{{catering.[0]}}{{catering.[1]}}{{catering.[2]}}</p>
+                        <p class="jd"><span>酒店：</span>{{hotelList.[0].hotelName}}</p>
+                    </div>
+                </li>
+                {{/each}}
+            </ul>
+            <div class="toggle-box">
+                <a href="{{GetRouteDetailResponse.ttbRouteSchedule}}">查看图文详情</a>
+            </div>
+        </div>
+        <div class="mod" id="anchor2">
+            <div class="icon-title">
+                <i class="i-fybh"></i>费用包含
+            </div>
+            <div class="charge-notice clearfix">
+                {{{GetRouteDetailResponse.feeDiscription.feeInclude}}}
+            </div>
+            <div class="icon-title">
+                <i class="i-fybbh"></i>费用不包含
+            </div>
+            <div class="charge-notice clearfix">
+                {{{GetRouteDetailResponse.feeDiscription.feeExclude}}}
+            </div>
+            <div class="toggle-box">
+                <a href="{{GetRouteDetailResponse.ttbFeeExplanation}}">查看详细说明</a>
+            </div>
+        </div>
+        <div class="mod" id="anchor3">
+            <a href="{{GetRouteDetailResponse.ttbBookingNotice}}" class="hh clearfix" style="display:block;">
+                <div class="icon-title mb0" style="float:left">
+                    <i class="i-ydxz"></i>预定须知
+                </div>
+                <div class="icon-right" style="float:right"></div>
+            </a>
+
+        </div>
+        {{#if GetRouteDetailResponse.visaInformation}}
+        <div class="mod">
+            <a href="product-detail-pop.html?routeId={{GetRouteDetailResponse.routeId}}" class="hh clearfix" style="display:block;">
+                <div class="icon-title mb0" style="float:left">
+                    <i class="i-qzqz"></i>签证签注
+                </div>
+                <div class="icon-right" style="float:right"></div>
+            </a>
+
+        </div>
+        {{/if}} {{#if GetRouteDetailResponse.backupDescs}}
+        <div class="mod">
+            <a href="product-detail-pop2.html?routeId={{GetRouteDetailResponse.routeId}}" class="hh clearfix" style="display:block;">
+                <div class="icon-title mb0" style="float:left">
+                    <i class="i-qt"></i>其他
+                </div>
+                <div class="icon-right" style="float:right"></div>
+            </a>
+
+        </div>
+        {{/if}}
+    </script>
+
+
+    <script>
+        var iCountParam;
+        var activityData = {};
+        var minTitle;
+        var wechatPayUrl = {};
+        var responData = {};
+
+        function mineInfoBack() {
+            var str = window.localStorage.activityListTime;
+            if (str == 0) {
+                window.location.href = "index.html";
+            } else if (str == 1) {
+                window.location.href = "activity.html";
+            } else {
+                window.location.href = "activity.html";
+            }
+        }
+
+
+        function activityDetailRequest(){
+            var routeDetail = {};
+            routeDetail.customerKey = defaultLoginrespon().apiUserName;
+            routeDetail.routeId = getURLParameter('routeId');
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.GetRouteDetailRequest = routeDetail;
+
+            var url = travelLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+                    if (data.responseMetaInfo.resultCode == 0) {
+
+                        responData = data;
+
+                        wechatPayLink();
+
+                        //是否是活动产品
+                        window.localStorage.activityPageActivity = "true";
+                        window.localStorage.joinActivity = data.GetRouteDetailResponse.joinActivity;
+
+                        activityData = data;
+
+                        window.localStorage.activityRouteId = getURLParameter('routeId')
+                        window.localStorage.activityBeginTime = getURLParameter('beginDate')
+                        window.localStorage.activityEndTime = getURLParameter('endDate')
+                        window.localStorage.activityMinTitle = getURLParameter('minTitle')
+
+                        //价格计算
+                        var item = sortPrice(data.GetRouteDetailResponse.groups);
+                        if (item) {
+                            //data.adultAdvicePrice = item.adultOriginalPrice; //getURLParameter('adultAdvicePrice');
+                            data.adultDefaultPrice = item.adultDefaultPrice; //getURLParameter('adultDefaultPrice');
+                        }
+
+                        var itemOriPrice = sortOriPrice(data.GetRouteDetailResponse.groups);
+                        if (itemOriPrice)
+                        {
+                            data.adultAdvicePrice = parseInt(itemOriPrice.adultOriginalPrice)/100;
+                        }
+
+                        console.log(data);
+                        var localStorage = window.localStorage;
+                        var myTemplate = Handlebars.compile($("#template-content").html());
+                        var arrTeamTime = data.GetRouteDetailResponse.groups;
+                        var hash = {};
+
+                        if (arrTeamTime) {
+                            var arrTeamTimeDiff = arrTeamTime.reduce(function(item, next) {
+                                hash[next.departureDate] ? '' : hash[next.departureDate] =
+                                        true && item.push(
+                                                next);
+                                return item;
+                            }, []); //去重后的对象数组;
+                        }
+                        console.log(arrTeamTimeDiff)
+                        var arrLen;
+                        if (arrTeamTimeDiff) {
+                            arrLen = arrTeamTimeDiff.length;
+                        }
+
+                        $('#temp-content').html(myTemplate(data));
+                        $("#activityDetail-imgSource").attr('src',imgLink() + minTitle);
+
+
+                        $('.commend-content').find('*').removeAttr('style');
+                        $('.charge-notice').find('*').removeAttr('style');
+
+                        new Swiper('.swiper-container', {
+                            loop: true,
+                            pagination: '.swiper-pagination'
+                        });
+
+                        $('#seeMore_box').on('click', function() {
+                            $('#seeMore_content').toggleClass('seeMore-content');
+                            $(this).find('i').toggleClass('seeLess');
+                            if ($('#seeMore_box').find('i').hasClass('seeLess')) {
+                                $(this).find('span').text('收起');
+                            } else {
+                                $(this).find('span').text('查看全部');
+                            }
+                        });
+
+                        // 产品经理推荐查看全部效果
+                        console.log(arrLen)
+                        if (!arrLen) {
+                            $('.date-list').html('<li>暂无团期</li>')
+                            $('.proDetail-bottom span').text('暂无团期');
+                            $('.dp3').text('');
+                            $('.dp4 .sp2').text('0');
+                        } else if (arrLen < 5) {
+                            for (var i = 0; i < arrLen; i++) {
+                                $('.date-list .lastOne').before(
+                                        '<li><a class="date-box"><p class="dd">' +
+                                        arrTeamTimeDiff[i].departureDate + '</p><p class="pp">￥' + arrTeamTimeDiff[
+                                                i].adultDefaultPrice + '起</p></a></li>')
+                            }
+                        } else {
+                            for (var i = 0; i < 4; i++) {
+                                $('.date-list .lastOne').before(
+                                        '<li><a class="date-box"><p class="dd">' +
+                                        arrTeamTimeDiff[i].departureDate + '</p><p class="pp">￥' + arrTeamTimeDiff[
+                                                i].adultDefaultPrice + '起</p></a></li>')
+                            }
+                        }
+
+
+                        $('.date-list>li>a').on('click', function() {
+
+                            var str = $("#activityDetail-commit").text();
+                            if(str == "即将开始" || str == "活动结束")
+                            {
+                                return;
+                            }
+
+                            localStorage.nowDate = $(this).find('.dd').text();
+                            localStorage.routeId = data.GetRouteDetailResponse.routeId;
+                            window.location.href = "team-calendar.html?routeId=" + data.GetRouteDetailResponse.routeId;
+                        });
+                        // $('.dia-price .dp3').text(localStorage.adultAdvicePrice);
+                        // $('.dia-price .sp2').text(localStorage.adultDefaultPrice);
+                        $('title').text(localStorage.productName);
+
+
+                        var beginDateTime = parseInt(getURLParameter('beginDate'));
+                        var endDateTime = parseInt(getURLParameter('endDate'));
+                        var serverDateTime = parseInt(data.GetRouteDetailResponse.serverTime);
+                        //活动定时器
+                        if(beginDateTime > serverDateTime)    //等待开始
+                        {
+                            $('#activityDetail-text').html("距开始:")
+                            $('#activityDetail-img').attr("src","images/zbz.png");
+                            $('#activityDetail-class').css("background-color","#C9C9C9");
+                            $('#activityDetail-commit').html('即将开始');
+                            timerOutAction(beginDateTime,endDateTime,serverDateTime);
+                        }
+                        else {
+                            if (endDateTime > serverDateTime)   //活动中
+                            {
+                                $('#activityDetail-text').html("距结束:")
+                                $('#activityDetail-img').attr("src","images/hdz.png");
+                                //判断是否是售罄
+                                var countSign = 0;
+                                for(var i=0; i<data.GetRouteDetailResponse.groups.length; i++)
+                                {
+                                    var tempData = data.GetRouteDetailResponse.groups[i];
+                                    countSign += (parseInt(tempData.numberOfPlanSignUp) - parseInt(tempData.numberOfHasSignUp))
+                                    if(countSign > 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if(countSign > 0)
+                                {
+                                    $('#activityDetail-commit').html('开始预定');
+                                    $('#activityDetail-class').css("background-color","#FB6768");
+                                }
+                                else
+                                {
+                                    $('#activityDetail-class').css("background-color","#C9C9C9");
+                                    $('#activityDetail-commit').html('售罄');
+                                }
+                                timerOutAction(beginDateTime,endDateTime,serverDateTime);
+                            }
+                            else//结束
+                            {
+                                $('#activityDetail-text').html("距结束:")
+                                $('#activityDetail-img').attr("src","images/yjs.png");
+                                $('#activityDetail-class').css("background-color","#C9C9C9");
+                                $('#activityDetail-commit').html('活动结束');
+                                $('.endHintTime').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                            }
+                        }
+
+                        $(".proDetail-bottom").click(function() {
+                            if (!arrLen) {
+                                alert("暂无团期");
+                                return false;
+                            } else {
+
+                                var str = $("#activityDetail-commit").text();
+                                if(str != "开始预定")
+                                {
+                                    return;
+                                }
+
+                                localStorage.routeId = data.GetRouteDetailResponse.routeId;
+                                localStorage.nowDate = $(".date-list>li>a").first().find('.dd').text()
+                                window.location.href = "team-calendar.html?routeId=" + data.GetRouteDetailResponse.routeId;
+                            }
+
+                        });
+
+
+                    } else {
+                        alert(data.responseMetaInfo.reason);
+                    }
+                },
+                error: function(data) {
+
+                }
+            });
+        }
+
+        function sortPrice(arr) {
+            var item;
+            if (arr && arr.length > 0) {
+                item = arr[0];
+
+                var adultAdvicePrice;
+                for (var i = 1; i < arr.length; i++) {
+                    adultAdvicePrice = parseFloat(item.adultDefaultPrice);
+                    var tempAdvicePrice = arr[i].adultDefaultPrice;
+                    if (tempAdvicePrice < adultAdvicePrice) {
+                        item = arr[i];
+                    }
+                }
+            }
+            return item;
+        };
+
+        function sortOriPrice(arr) {
+            var item;
+            if (arr && arr.length > 0) {
+                item = arr[0];
+
+                var adultAdvicePrice;
+                for (var i = 1; i < arr.length; i++) {
+                    adultAdvicePrice = parseFloat(item.adultOriginalPrice);
+                    var tempAdvicePrice = arr[i].adultOriginalPrice;
+                    if (tempAdvicePrice < adultAdvicePrice) {
+                        item = arr[i];
+                    }
+                }
+            }
+            return item;
+        };
+
+
+        function timerOutAction(beginTime,endTime,serverTime) {
+
+            var activityStartTime = beginTime;
+            var activityEndTime = endTime;
+            var currServerTime = serverTime;
+
+            var time ;//= starttime - nowtime;
+
+            iCountParam = setInterval(function () {
+
+                var day = parseInt(time / 1000 / 60 / 60 / 24);
+                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                var minute = parseInt(time / 1000 / 60 % 60);
+                var seconds = parseInt(time / 1000 % 60);
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (seconds <= 9) seconds = '0' + seconds;
+                //倒计时-1s
+                time = time-1000;
+                //当前时间+1s
+                currServerTime = currServerTime + 1000;
+
+                console.log(time);
+                if(day == '00' && hour == '00' && minute == '00' && seconds == '00')
+                {
+                    if(activityStartTime > currServerTime)    //等待开始
+                    {
+                        time = currServerTime - activityStartTime;
+                        $("#activityDetail-text").html("距开始:")
+                        $("#activityDetail-img").attr("src","images/zbz.png");
+                        $('#activityDetail-class').css("background-color","#C9C9C9");
+                        $('#activityDetail-commit').html('即将开始');
+                    }
+                    else
+                    {
+                        if(activityEndTime > currServerTime)   //活动中
+                        {
+                            time = activityEndTime - currServerTime;
+                            $("#activityDetail-text").html("距结束:")
+                            $("#activityDetail-img").attr("src","images/hdz.png");
+                            var countSign = 0;
+                            for(var i=0; i<activityData.GetRouteDetailResponse.groups.length; i++)
+                            {
+                                var tempData = activityData.GetRouteDetailResponse.groups[i];
+                                countSign += (parseInt(tempData.numberOfPlanSignUp) - parseInt(tempData.numberOfHasSignUp))
+                                if(countSign > 0)
+                                {
+                                    break;
+                                }
+                            }
+                            if(countSign > 0)
+                            {
+                                $('#activityDetail-commit').html('开始预定');
+                                $('#activityDetail-class').css("background-color","#FB6768");
+                            }
+                            else
+                            {
+                                $('#activityDetail-class').css("background-color","#C9C9C9");
+                                $('#activityDetail-commit').html('售罄');
+                            }
+                        }
+                        else//结束
+                        {
+                            clearInterval(iCountParam);
+                            $("#activityDetail-text").html("距结束:")
+                            $("#activityDetail-img").attr("src","images/yjs.png");
+                            $('#activityDetail-class').css("background-color","#C9C9C9");
+                            $('#activityDetail-commit').html('活动结束');
+                        }
+                    }
+                }
+
+                if(day == '00')
+                {
+                    $('.endHintTime').html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+                else {
+                    day = parseInt(day);
+                    $('.endHintTime').html("<i>" + day + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+            }, 1000);
+
+
+            if(activityStartTime > currServerTime)    //等待开始
+            {
+                time = activityStartTime - currServerTime;
+            }
+            else
+            {
+                if(activityEndTime > currServerTime)   //活动中
+                {
+                    time = activityEndTime - currServerTime;
+                }
+                else//结束
+                {
+                    $('.endHintTime').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                    clearInterval(iCountParam);
+                }
+            }
+        }
+
+        function wechatPayLink() {
+
+            var wechatPayRespon = {};
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            var url = "http://192.168.161.137:8480/webChat/RequestSignature";
+            if (isOp3 == 0)
+            {
+                url = "https://app.travelzen.com/tops-openapi-for-customers/webChat/RequestSignature";
+            }
+            url = url + "?url=" +  encodeURIComponent(window.location.href.split('#')[0]);//window.location.href.replace(encodeURIComponent(window.location.href), '');
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+
+                    if (data.responseMetaInfo.resultCode == 0) {
+
+                        wechatPayRespon = data.WebChatResponse;
+
+
+                        wx.config({
+                            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                            appId: wechatPayRespon.appId, // 必填，公众号的唯一标识
+                            timestamp: wechatPayRespon.timestamp, // 必填，生成签名的时间戳
+                            nonceStr: wechatPayRespon.noncestr, // 必填，生成签名的随机串
+                            signature: wechatPayRespon.signature,// 必填，签名，见附录1
+                            jsApiList: ['onMenuShareTimeline',
+                                'onMenuShareAppMessage',
+                                'onMenuShareQQ',
+                                'onMenuShareWeibo',
+                                'onMenuShareQZone'
+                            ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                        });
+
+                        wx.ready(function () {
+                            wx.checkJsApi({
+                                jsApiList: [
+                                    'onMenuShareTimeline',
+                                    'onMenuShareAppMessage',
+                                    'onMenuShareQQ',
+                                    'onMenuShareWeibo',
+                                    'onMenuShareQZone'
+                                ]
+                            });
+
+                            var imageUrl = "";
+                            if(responData.GetRouteDetailResponse.carouseImages && responData.GetRouteDetailResponse.carouseImages.length > 0)
+                            {
+                                imageUrl = responData.GetRouteDetailResponse.carouseImages[0].imageUrl;
+                            }
+
+                            wx.onMenuShareTimeline({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+                            wx.onMenuShareAppMessage({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+                            wx.onMenuShareQQ({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+
+                            wx.onMenuShareWeibo({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+
+                            wx.onMenuShareQZone({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+                            wx.error(function (res) {
+//                            alert('wx.error: '+JSON.stringify(res));
+                            });
+                        });
+                    }
+                    else {
+
+                    }
+                },
+                error: function(data) {
+
+                }
+            });
+        }
+
+        $(function(){
+
+            minTitle = getURLParameter('minTitle');
+
+            document.addEventListener("visibilitychange", function() {
+                //window.location.href=window.location.href+"?id="+10000*Math.random();
+                window.location.reload();
+                return false;
+            }, false);
+
+            activityDetailRequest();
+
+            new Swiper('.swiper-container', {
+                loop: true,
+                pagination: '.swiper-pagination'
+            });
+
+            $('#seeMore_box').on('click', function () {
+                $('#seeMore_content').toggleClass('seeMore-content');
+                $(this).find('i').toggleClass('seeLess');
+                if ($('#seeMore_box').find('i').hasClass('seeLess')) {
+                    $(this).find('span').text('收起');
+                } else {
+                    $(this).find('span').text('查看全部');
+                }
+            });
+            
+            $("body").delegate(".center-nav>a","click",function(){
+                $(this).addClass("active");
+                $(this).siblings().removeClass("active");
+            });
+
+        })        
+    </script>
+</body>
+
+</html>

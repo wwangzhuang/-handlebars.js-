@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>选择常旅客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            选择常旅客
+        </div>
+        <div class="headerRight addBtn" id="choosetraveller-add">
+            <a href="javascript:void(0);"></a>
+        </div>
+    </div>
+    <div class="traveller-searchBox">
+        <input type="text" placeholder="关键字搜索" class="searchIn">
+        <span id="cancelBtn">取消</span>
+    </div>
+    <ul class="traveller-list" id="temp-list">
+    </ul>
+    <ul class="traveller-list traveller-list-filter" id="temp-list-filter" style="bottom:.98rem">
+    </ul>
+    <ul class="traveller-letterList" id="temp-letter">
+    </ul>
+    <div class="traveller-submit" id="chooseSubmit">
+        确定
+    </div>
+
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script id="template-list" type="text/x-handlebars-template">
+        {{#each TravellerQueryResponse.travellerInfo}}
+        <li>
+            <div class="character" id="{{character}}" name="{{character}}">{{character}}</div>
+            {{#each traveller}}
+            <div class="user-item" data-key="{{travellerKey}}">
+                <input class="checkbox" value="" type="checkbox">
+                <div class="detail-wrapper">
+                    {{#if name}}
+                    <span class="name changeDetail">{{name}}</span> {{else}}
+                    <span class="name changeDetail">{{enName}}</span> {{/if}}
+                    <span class="age changeDetail">{{personType type}}</span>
+                    <span class="id changeDetail">{{cardType papers.[0].type}}</span>
+                    <span class="num changeDetail">{{papers.[0].number}}</span>
+                    <div class="icon-right"></div>
+                </div>
+            </div>
+            {{/each}}
+        </li>
+        {{/each}}
+    </script>
+    <script id="template-list-filter" type="text/x-handlebars-template">
+        {{#each this}}
+        <li>
+            <div class="user-item" data-key="{{travellerKey}}">
+                <input class="checkbox" value="" type="checkbox">
+                <div class="detail-wrapper">
+                    {{#if name}}
+                    <span class="name changeDetail">{{name}}</span> {{else}}
+                    <span class="name changeDetail">{{enName}}</span> {{/if}}
+                    <span class="age changeDetail">{{personType type}}</span>
+                    <span class="id changeDetail">{{cardType papers.[0].type}}</span>
+                    <span class="num changeDetail">{{papers.[0].number}}</span>
+                    <div class="icon-right"></div>
+                </div>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script id="template-letter" type="text/x-handlebars-template">
+        {{#each TravellerQueryResponse.travellerInfo}}
+        <li><a href="#{{character}}">{{character}}</a></li>
+        {{/each}}
+    </script>
+    <script>
+        var travelData = new Array();
+
+        function mineInfoBack() {
+            window.location.href = "createorder.html";
+        };
+
+        $(function () {
+            $('html').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            $('body').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            $('.searchIn').on('click', function () {
+                $(this).css('text-align', 'left');
+                $(this).css('width', '6.2rem');
+                $('#cancelBtn').show();
+                $('#temp-list-filter').show();
+            });
+            $('#temp-list-filter').on('click', function () {
+                $(this).hide();
+                $('.searchIn').css({
+                    'text-align': 'center',
+                    'width': '7.1rem'
+                });
+                $('#cancelBtn').hide();
+            });
+            $('.searchIn').bind('input propertychange', function () {
+                if ($(this).val()) {
+                    $('#temp-list-filter').css('background', '#fff');
+                    $('#temp-list-filter').off('click')
+                } else {
+                    $('#temp-list-filter').css('background', 'rgba(0, 0, 0, 0.5)');
+                     $('#temp-list-filter').html('')
+                    $('#temp-list-filter').on('click', function () {
+                        $(this).hide();
+                        $('.searchIn').css({
+                            'text-align': 'center',
+                            'width': '7.1rem'
+                        });
+                        $('#cancelBtn').hide();
+                    });
+                }
+
+                var text = $(".searchIn").val();
+                if (text.length <= 0) {
+                    return;
+                }
+                var searchArray = new Array();
+                for (var i = 0; i < travelData.length; i++) {
+                    var itemDataArr = travelData[i].traveller;
+                    for (var j = 0; j < itemDataArr.length; j++) {
+                        var item = itemDataArr[j];
+                        if (item.name) {
+                            if (isContains(item.name, text)) //中文名
+                            {
+                                searchArray.push(item);
+                                continue;
+                            }
+                        }
+
+                        if (item.enName) {
+                            if (isContains(item.enName.toLocaleLowerCase(), text.toLocaleLowerCase())) //英文名
+                            {
+                                searchArray.push(item);
+                                continue;
+                            }
+                        }
+
+                        if (item.pinyin) {
+                            if (isContains(item.pinyin.toLocaleLowerCase(), text.toLocaleLowerCase())) //拼音
+                            {
+                                searchArray.push(item);
+                                continue;
+                            }
+                        }
+                    }
+                }
+                console.log(searchArray);
+                var myTemplate = Handlebars.compile($("#template-list-filter").html());
+                $('#temp-list-filter').html(myTemplate(searchArray));
+            });
+            
+            $('#cancelBtn').on('click', function () {
+                $(this).hide();
+                $('#temp-list-filter').hide();
+                $('.searchIn').css({
+                    'text-align': 'center',
+                    'width': '7.1rem'
+                })
+
+                $(".searchIn").val("");
+                $('#temp-list-filter').html('');
+            })
+
+            var storage = window.localStorage;
+            var checkedKey = [];
+            var dataArr = [];
+            var seedData = [];
+            var seedState = JSON.parse(storage.seedState);
+
+            travellerQueryRequest();
+
+
+
+
+            $(document).on('click', '#chooseSubmit', function () {
+                document.location.href = 'createorder.html';
+                checkedKey = [];
+                seedData = [];
+                $('.user-item .checkbox').each(function () {
+                    if ($(this).is(':checked')) {
+                        checkedKey.push($(this).closest('.user-item').data('key'));
+                    }
+                });
+                for (var i = 0; i < dataArr.length; i++) {
+                    if (checkedKey.indexOf(dataArr[i].travellerKey) != "-1") {
+                        seedData.push(dataArr[i]);
+                    }
+                }
+                storage.seedData = JSON.stringify(seedData);
+            });
+
+            $(document).on('click', '.detail-wrapper', function () {
+                //                var key = $(".user-item").data("key");
+                var key = $(this).parent().data('key');
+
+                for (var i = 0; i < travelData.length; i++) {
+                    var flag = false;
+                    var itemDataArr = travelData[i].traveller;
+                    for (var j = 0; j < itemDataArr.length; j++) {
+                        var item = itemDataArr[j];
+                        if (item.travellerKey == key) {
+                            flag = true;
+                            window.localStorage.travellerInfo = JSON.stringify(item);
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        break;
+                    }
+                }
+                window.localStorage.newTravelStatus = 1;
+                window.location.href = "details-flyer.html";
+            })
+
+            $("#choosetraveller-add").click(function () {
+                if(window.localStorage.travellerInfo)
+                {
+                    window.localStorage.removeItem("travellerInfo");
+                }
+                window.localStorage.newTravelStatus = 1;
+                window.location.href = "details-flyer.html";
+            });
+
+            function travellerQueryRequest() {
+                var routeDetail = {};
+                routeDetail.default = "default";
+                var dataRequest = {};
+                dataRequest.requestMetaInfo = requestData();
+                dataRequest.TravellerQueryRequest = routeDetail;
+
+                var url = normalInfoLink();
+
+                url = url + "/flight/basic";
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    data: JSON.stringify(dataRequest),
+                    type: 'post',
+                    contentType: "application/json;utf-8",
+                    success: function (data) {
+                        if (data.responseMetaInfo.resultCode == 0) {
+                            var travellerInfo = data.TravellerQueryResponse.travellerInfo;
+                            travelData = travellerInfo;
+                            var arr = [];
+                            console.log(data)
+                            var myTemplate = Handlebars.compile($("#template-list").html());
+                            $('#temp-list').html(myTemplate(data));
+                            var myTemplate1 = Handlebars.compile($("#template-letter").html());
+                            $('#temp-letter').html(myTemplate1(data));
+
+                            //判断复选框的选中状态
+                            $('.user-item').each(function () {
+                                if (seedState.indexOf($(this).data('key')) != '-1') {
+                                    $(this).find('.checkbox').prop('checked', 'checked')
+                                }
+                            })
+
+                            // data取出单个旅客信息组成数组
+                            for (var i = 0; i < travellerInfo.length; i++) {
+                                arr[i] = travellerInfo[i].traveller;
+                            }
+                            ;
+                            for (var i = 0; i < arr.length; i++) {
+                                for (var j = 0; j < arr[i].length; j++) {
+                                    dataArr.push(arr[i][j]);
+                                }
+                            };
+                        }
+                        else {
+                            alert(data.responseMetaInfo.reason);
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                })
+            }
+        })
+    </script>
+</body>
+
+</html>

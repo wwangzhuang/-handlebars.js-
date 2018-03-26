@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅游首页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function() {
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type = 'text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'ht' +
+                        'tp://') +
+                    'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <header id="indexheader">
+        <div class="search-login">
+            <div class="index-search">
+                <a href="destination.html"></a>
+            </div>
+            <div id="temp-login">
+            </div>
+        </div>
+        <!--轮播图-->
+        <div class="carousel-box" id="temp-carousel">
+
+        </div>
+    </header>
+    <div class="index-content">
+
+        <div class="index-m-hotplace tabs-container" id="temp-hotPlace">
+        </div>
+
+        <div class="activity-block" id="temp-activity">
+
+        </div>
+
+        <div class="index-m-worldviews tabs-container1" id="temp-worldView">
+        </div>
+    </div>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+
+    <!--轮播模板-->
+    <script id="template-carousel" type="text/x-handlebars-template">
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                {{#each AppGetHotDestAndCarouselImagesResponse.getCarouselImagesResponse.appCarouse}}
+                <div class="swiper-slide">
+                    <a href="{{isPath advertisement.image.pathType advertisement.image.path}}?routeId={{advertisement.image.path}}" data-link="{{advertisement.image.path}}" class="carousel-link"><img src="{{imgLink}}{{advertisement.image.attachmentId}}" alt="{{advertisement.title}}"></a>
+                </div>
+                {{/each}}
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </script>
+
+    <!--热门导航模板-->
+    <script id="template-hotPlace" type="text/x-handlebars-template">
+        <ul class="m-nav-title tabs-menu clearfix">
+            {{#each AppGetHotDestAndCarouselImagesResponse.getHotDestResponse.jOAHotDests.[0].areas}}
+            <li>
+                <a class="tabs-nav" name="#{{this.id}}">{{this.name}}</a>
+            </li>
+            {{/each}}
+        </ul>
+        {{#each AppGetHotDestAndCarouselImagesResponse.getHotDestResponse.jOAHotDests.[0].areas}}
+        <div id="{{this.id}}" class="tabs-panel m-hotplace-item">
+            <ul class="hotplace-list clearfix">
+                {{#each unChangedDest}}
+                <li><a href="search-list.html?keyWord={{this}}&type=travelList" class="hotPlaceLink">{{this}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+        {{/each}}
+    </script>
+
+
+    <!--旅游推荐目的地模板-->
+    <script id="template-worldView" type="text/x-handlebars-template">
+        <div class="no-scrollBar">
+            <div class="title-wrapper">
+                <ul class="m-nav-title clearfix" id="scroll_nav">
+                    {{#each GetRecommendColumnsResponse.jOARecRoutes}} {{#each labels}}
+                    <li>
+                        <a name="" class="tabs-nav">{{labelName}}</a>
+                    </li>
+                    {{/each}}{{/each}}
+                </ul>
+            </div>
+        </div>
+        {{#each GetRecommendColumnsResponse.jOARecRoutes}} {{#each labels}}
+        <div id="" class="tabs-panel worldView">
+            <ul class="index-product">
+                {{#each routes}}
+                <li class="product-box">
+                    <a href="product-detail.html?routeId={{routeId}}&adultAdvicePrice={{price}}&adultDefaultPrice={{marketPrice}}" data-proID="{{routeId}}" class="proList-link">
+                        <div class="pic-box">
+                            <img src="{{defaultPicUrl}}" alt="">
+                            <div class="zuanji">
+                                <img src="{{productLevelStatus diamondLevel}}">
+                            </div>
+                        </div>
+                        <div class="product-details">
+                            <p class="title">{{routeTitle}}</p>
+                            <div class="place-date">{{sourcePlace}} | {{fiveGroupDateStr}}</div>
+                            <div class="type-old clearfix">
+                                <div class="pic-type">
+                                    <img src="{{imgItemStatus routeForm}}" alt="">
+                                </div>
+                                {{#if isAllIroncladGroup}}
+                                <div class="pic-type">
+                                    <img src="images/pro-type2.png" alt="">
+                                </div>
+                                {{/if}} {{#priceEqual marketPrice price}}<span class="old-price">￥{{marketPrice}}</span>{{/priceEqual}}
+                            </div>
+                            <div class="clearfix">
+                                <div class="jd">{{productItemStatus diamondLevel}}</div>
+                                <div class="index-price">
+                                    {{#priceEqual marketPrice price}}会员：{{/priceEqual}}<span class="price">￥<span class="number">{{price}}</span></span>起
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                {{/each}}
+
+            </ul>
+            <div class="more-link">
+                <a href="search-list.html?keyWord={{searchCity}}&type=travelList" data-link="{{searchCity}}"></a>
+            </div>
+        </div>
+
+        {{/each}} {{/each}}
+
+
+    </script>
+
+
+    <script id="template-login" type="text/x-handlebars-template">
+        {{#if loginSuccess}}
+        <div class="login-box" id="index-mine-action">
+            <a href="#">
+                <div class="icon-login"></div>
+                <div class="sp">我的</div>
+            </a>
+        </div>
+        {{else}}
+        <div class="login-box" id="index-login-action">
+            <a href="#">
+                <div class="icon-login"></div>
+                <div class="sp">登录</div>
+            </a>
+        </div>
+        {{/if}}
+    </script>
+
+    <!--活动专区模板-->
+    <script id="template-activity" type="text/x-handlebars-template">
+        <div class="activity-block">
+            <div class="activity-title clearfix">
+                <div class="activity-tl"><i></i>活动专区</div>
+                <div class="activity-tr"><a href="activity.html">更多 ></a></div>
+            </div>
+            <a href="activity-detail.html?routeId={{SearchOneImportantProductResponse.products.products.[0].productKey}}&beginDate={{SearchOneImportantProductResponse.products.products.[0].beginDate}}&endDate={{SearchOneImportantProductResponse.products.products.[0].endDate}}&minTitle={{SearchOneImportantProductResponse.products.minTitle}}"
+                style="display:block;">
+                <div class="activity-main">
+                    <div class="activity-t">
+                        {{#sellCountNone SearchOneImportantProductResponse.products.products.[0].numberOfRemain}}
+                        <div class="sell-none"></div>
+                        {{/sellCountNone}}
+                        <img src={{SearchOneImportantProductResponse.products.products.[0].url}}>
+                        <p class="activity-t-t"><i class="activity-type"><img src="{{imgLink}}{{SearchOneImportantProductResponse.products.minTitle}}"></i>
+                            <i class="activity-status">
+                            <img src= "{{activityStatus SearchOneImportantProductResponse.products.products.[0].status}}">
+                        </i>{{SearchOneImportantProductResponse.products.products.[0].productName}}</p>
+                    </div>
+                    <div class="activity-b">
+                        <div class="activity-price">活动价 ¥<span>{{SearchOneImportantProductResponse.products.products.[0].promotionPrice}}</span></div>
+                        <div class="activity-time">{{activityText SearchOneImportantProductResponse.products.products.[0].status}}
+                            <span class="act-timeout"></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </script>
+    <!--活动专区模板-->
+
+    <script>
+        window.localStorage.travelProductStatus = 0;
+        window.localStorage.loginActionStatus = 0;
+        window.localStorage.activityListTime = 0;
+        var activityData = {};
+        var iCountParam;
+
+        Handlebars.registerHelper("isPath", function(v1, result1) {
+                if (v1 == "url") {
+                    return result1;
+                } else {
+                    return "product-detail.html";
+                }
+            })
+            //品质对应枚举
+        Handlebars.registerHelper("productItemStatus", function(str) {
+            if (str == "TWO_DIAMOND") {
+                return "【甩尾】";
+            } else if (str == "THREE_DIAMOND") {
+                return "【促销】";
+            } else if (str == "FOUR_DIAMOND") {
+                return "【经济】";
+            } else if (str == "FIVE_DIAMOND") {
+                return "【经典】";
+            } else if (str == "SIX_DIAMOND") {
+                return "【品质】";
+            } else {
+                return "【其他】";
+            }
+        });
+
+        Handlebars.registerHelper("productLevelStatus", function(str) {
+            if (str == "TWO_DIAMOND") {
+                return "images/zuanji2.png";
+            } else if (str == "THREE_DIAMOND") {
+                return "images/zuanji3.png";
+            } else if (str == "FOUR_DIAMOND") {
+                return "images/zuanji4.png";
+            } else if (str == "FIVE_DIAMOND") {
+                return "images/zuanji5.png";
+            } else if (str == "SIX_DIAMOND") {
+                return "images/zuanji6.png";
+            } else {
+                return "";
+            }
+        });
+
+        //图片标识
+        Handlebars.registerHelper("imgItemStatus", function(str) {
+            if (str == "HALFSELFHELP") {
+                return "images/product-type.jpg"
+            } else if (str == "FOLLOWTOUR") {
+                return "images/pro-type1.png"
+            } else if (str == "LOCAL") {
+                return "images/pro-type3.png"
+            } else if (str == "FREETRAVEL") {
+                return "images/pro-type4.png"
+            } else {
+                return "images/product-type.jpg"
+            }
+        });
+
+        /* 旅游首页 */
+        function travellerHomePageRequest() {
+
+            var routeDetail = {};
+            routeDetail.customerkey = defaultLoginrespon().userKey;
+            routeDetail.title = "appJourney";
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.GetRecommendColumnsRequest = routeDetail;
+
+            var url = travelLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+                    if (data.responseMetaInfo.resultCode == 0) {
+                        var myTemplate = Handlebars.compile($("#template-worldView").html());
+                        $('#temp-worldView').html(myTemplate(data));
+                        $(".worldView").each(
+                            function(index) {
+                                $(this).attr("id", "id_" + index)
+                            }
+                        )
+                        $("#scroll_nav li>a").each(
+                            function(index) {
+                                $(this).attr("name", "#" + "id_" + index)
+                            }
+                        )
+                        $('.tabs-container1').tabs();
+                        // console.log(Number($('#scroll_nav>li').length));
+                        // console.log($('#scroll_nav>li').outerWidth(true));
+                        $('#scroll_nav').css('width', $('#scroll_nav>li').outerWidth(true) * $('#scroll_nav>li')
+                            .length);
+                        $('.proList-link').on('click', function() {
+                            var localStorage = window.localStorage;
+                            localStorage.proID = $(this).data('proid');
+                        });
+                        $('.more-link>a').on('click', function() {
+                            var storage = window.localStorage;
+                            storage.hotplacelink = $(this).data("link");
+                        });
+                    }
+                },
+                error: function(data) {}
+            });
+        }
+
+
+        function travelGetHotDestAndCarouselImages() {
+
+            var routeDetail = {};
+            routeDetail.isGetCarouselImages = "true";
+            routeDetail.isGetHotDest = "true";
+            routeDetail.type = "travel";
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppGetHotDestAndCarouselImagesRequest = routeDetail;
+
+            var url = travelLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+                    var myTemplate = Handlebars.compile($("#template-carousel").html());
+                    $('#temp-carousel').html(myTemplate(data));
+                    var myTemplate1 = Handlebars.compile($("#template-hotPlace").html());
+                    $('#temp-hotPlace').html(myTemplate1(data));
+                    //初始化轮播
+                    new Swiper('.swiper-container', {
+                        loop: true,
+                        pagination: '.swiper-pagination',
+                        autoplay: 3000
+                    });
+                    //初始化tabs
+                    $('.tabs-container').tabs();
+                    //设置中间li左右边框
+                    $('.tabs-container .tabs-menu>li:eq(1)').addClass('title-center');
+                    $('.hotPlaceLink').on('click', function() {
+                        var storage = window.localStorage;
+                        storage.hotplacelink = $(this).text();
+                    });
+                    $('.carousel-link').on('click', function() {
+                        var localStorage = window.localStorage;
+                        localStorage.proID = $(this).data('link');
+                    });
+                    $('.hotplace-list>li:last-child a').on('click', function() {
+                        $(this).attr('href', 'javascript:void(0)')
+                        window.location.href = 'destination.html';
+                    })
+                },
+                error: function() {}
+            });
+        }
+
+        function travelGetActivityProductRequest() {
+            var routeDetail = {};
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.SearchOneImportantProductRequest = routeDetail;
+            var url = activityLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+                    if (data.responseMetaInfo.resultCode == 0) {
+                        if (!data.SearchOneImportantProductResponse.products || data.SearchOneImportantProductResponse.products.products.length <= 0) {
+                            return;
+                        }
+
+                        activityData = data;
+
+                        var myTemplate = Handlebars.compile($("#template-activity").html());
+                        $('#temp-activity').html(myTemplate(activityData));
+
+                        var firstTime = data.SearchOneImportantProductResponse.products.products[0].beginDate;
+                        var secondTime = data.SearchOneImportantProductResponse.products.products[0].endDate;
+                        var serverTime = data.SearchOneImportantProductResponse.products.openApiServerDate;
+                        timerOutAction((parseInt(firstTime)), (parseInt(secondTime)), (parseInt(serverTime)))
+                    }
+                },
+                error: function() {
+
+                }
+            });
+        }
+
+        (function() {
+            var loginState = window.localStorage.loginSuccess;
+            var data = {
+                "loginSuccess": loginState,
+            }
+            var myTemplate = Handlebars.compile($("#template-login").html());
+            $('#temp-login').html(myTemplate(data));
+
+        })();
+    </script>
+
+
+    <script>
+        function timerOutAction(beginTime, endTime, serverTime) {
+
+            var activityStartTime = beginTime;
+            var activityEndTime = endTime;
+            var currServerTime = serverTime;
+
+            var time; //= starttime - nowtime;
+
+            iCountParam = setInterval(function() {
+
+                var day = parseInt(time / 1000 / 60 / 60 / 24);
+                var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                var minute = parseInt(time / 1000 / 60 % 60);
+                var seconds = parseInt(time / 1000 % 60);
+                if (day <= 9) day = '0' + day;
+                if (hour <= 9) hour = '0' + hour;
+                if (minute <= 9) minute = '0' + minute;
+                if (seconds <= 9) seconds = '0' + seconds;
+                //倒计时-1s
+                time = time - 1;
+                //当前时间+1s
+                currServerTime = currServerTime + 1;
+
+                if (day == '00' && hour == '00' && minute == '00' && seconds == '00') {
+                    if (activityStartTime > currServerTime) //等待开始
+                    {
+                        time = currServerTime - activityStartTime;
+                    } else {
+                        if (activityEndTime > currServerTime) //活动中
+                        {
+                            time = activityEndTime - currServerTime;
+                            activityData.SearchOneImportantProductResponse.products.products[0].status = 'runing'
+                            var myTemplate = Handlebars.compile($("#template-activity").html());
+                            $('#temp-activity').html(myTemplate(activityData));
+                        } else //结束
+                        {
+
+                            activityData.SearchOneImportantProductResponse.products.products[0].status = 'end'
+                            var myTemplate = Handlebars.compile($("#template-activity").html());
+                            $('#temp-activity').html(myTemplate(activityData));
+                            clearInterval(iCountParam);
+                        }
+                    }
+                }
+
+                if (day == '00') {
+                    $('.act-timeout').html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                } else {
+                    day = parseInt(day);
+                    $('.act-timeout').html("<i>" + day + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                }
+            }, 1);
+
+
+            if (activityStartTime > currServerTime) //等待开始
+            {
+                time = activityStartTime - currServerTime;
+            } else {
+                if (activityEndTime > currServerTime) //活动中
+                {
+                    time = activityEndTime - currServerTime;
+                } else //结束
+                {
+                    $('.act-timeout').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                    clearInterval(iCountParam);
+                }
+            }
+        }
+
+
+        $(function() {
+            travellerHomePageRequest();
+            travelGetHotDestAndCarouselImages();
+            travelGetActivityProductRequest();
+
+
+            //登录事件处理
+            $("#index-login-action").click(function() {
+                window.location.href = "login.html"
+            });
+
+            //我的事件处理
+            $("#index-mine-action").click(function() {
+                window.location.href = "my.html"
+            });
+
+            $('.more-link').click(function() {
+                var storage = window.localStorage;
+                storage.hotplacelink = $(this).text();
+                storage.navcode = "ALL";
+            })
+
+            document.addEventListener("visibilitychange", function() {
+                //                window.location.href=window.location.href+"?id="+10000*Math.random();
+                //                window.location.reload();
+                window.location.reload();
+                return false;
+            }, false);
+        })
+    </script>
+
+</body>
+
+</html>

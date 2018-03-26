@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>活动专区列表</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+        <script>
+            document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+        </script>
+        <link rel="stylesheet" href="css/mui.min.css">
+        <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+        <link rel="stylesheet" href="css/common.css">
+        <link rel="stylesheet" href="css/details.css">
+        <link rel="stylesheet" href="css/pullToRefresh.css" />
+        <style>
+            .searchList-nav {
+                display: table;
+                width: 100%;
+                border-bottom: 1px solid #f2f2f2;
+            }    
+            .searchList-nav span {
+                font-size: .3rem;
+                display: table-cell;
+                height: .8rem;
+                text-align: center;
+                color: #ffffff;
+                opacity:0.5; 
+                filter:alpha(opacity=50); 
+                -ms-filter:alpha(opacity=50);
+                position: relative;
+            }    
+            .searchList-nav span.active {
+                color: #ffffff;
+                opacity:1;
+                filter:alpha(opacity=100);
+                -ms-filter:alpha(opacity=100);
+            }    
+            .searchList-main {
+                position: absolute;
+                top: 1.64rem;
+                left: 0;
+                right: 0;
+                bottom: 1.08rem;
+            }    
+            .searchList-main .product-box {
+                margin: .2rem;
+            }
+            .searchList-nav.timeListNav{
+                padding: .8rem 0 .15rem;
+            }
+            .searchList-nav.timeListNav .timeFonts{
+                font-size: .3rem;
+            }
+            .searchList-nav.timeListNav .timeStatus{
+                font-size: .22rem;
+            }
+        </style>
+    </head>
+
+    <body>
+
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="activity.html"></a>
+        </div>
+        <div class="common-title">限时秒杀</div>
+        <div class="searchList-nav timeListNav" id="temp-searchNav">
+        </div>
+    </div>
+    <div class="statusTimeBlock clearfix">
+        <span class="currentTime" id="activitiy-list-status">抢购中</span>
+                <span class="grayBgTime">
+                    <span id="activitiy-time-status">距结束</span>
+                    <span class="timeGrayBgSpan"></span>
+                </span>
+    </div>
+    <div class="margin20">
+        <ul id="div-activityListTime">
+        </ul>
+    </div>
+<!--顶部导航模板-->
+        <script id="template-activityNav" type="text/x-handlebars-template">
+
+                {{#each SearchProductByKeyResponse.products}}
+                    <span class="nav-item">
+                            <i class="commonTopArrowIcon activeIcon"></i>
+                            <b class="timeFonts" data-page="{{beginDate}}">{{timeDetail beginDate}}</b>
+                            <br>
+                            <em class="timeStatus">{{activityTimeText tempStatus}}</em>
+                    </span>
+                {{/each}}
+
+        </script>
+<!--顶部导航模板-->
+        <script id="template-activityListTime" type="text/x-handlebars-template">
+
+                    {{#each this}}
+                    <li class="product-box">
+                        <a href="activity-detail.html?routeId={{productKey}}&beginDate={{beginDate}}&endDate={{endDate}}&minTitle={{minTitle}}" data-proID="{{routeId}}" class="proList-link">
+                            <div class="pic-box">
+                                {{#sellCountNone numberOfRemain}}<div class="sell-none"></div>{{/sellCountNone}}
+                                <img src="{{url}}" alt="">
+
+                                {{#activityLabelShow label1 label2}}
+                                <div class="tagType bgred">
+                                    {{#activitysubLabelShow label1}}
+                                    <span class="imgFonts">{{label1}}</span>
+                                    {{/activitysubLabelShow}}
+
+                                    {{#activityAllLabelShow label1 label2}}
+                                    丨
+                                    {{/activityAllLabelShow}}
+
+                                    {{#activitysubLabelShow label2}}
+                                    <span class="imgFonts">{{label2}}</span>
+                                    {{/activitysubLabelShow}}
+                                </div>
+                                {{/activityLabelShow}}
+                                <div class="sellOut displayNone">
+                                    <span class="sellOutImg"></span>
+                                </div>
+                            </div>
+                            <div class="product-details">
+                                <p class="titleFonts"><i class="commonClassifyIcon"><img src="{{activityStatus status}}" alt=""></i>{{productName}}</p>
+                                <div class="clearfix">
+                                    <div class="priceLeft">
+                                        <span class="redFonts">￥<span class="number">{{promotionPrice}}</span></span>
+                                    </div>
+                                    <div class="residueRight color666">
+                                        {{#activitySignShow status}}
+                                        <span>
+                                            <em class="blueFonts">剩余</em>
+                                            <em class="redFonts">{{numberOfRemain}}</em>
+                                            <span>份</span>
+                                        </span>
+                                        {{/activitySignShow}}
+                                        <div class="czys-title-buy"><img src="{{activityModelImgStatus status}}" alt="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {{/each}}
+
+        </script>
+
+        <script src="js/jquery-3.1.1.min.js"></script>
+        <script src="js/handlebars-v4.0.5.js"></script>
+        <!--<script src="js/mui.min.js"></script>-->
+        <script src="js/swiper-3.4.2.jquery.min.js"></script>
+        <script src="js/jq-plugins.js"></script>
+        <script src="projectJs/jQuery.md5.js"></script>
+        <script src="projectJs/normal.js"></script>
+        <script src="js/iscroll.js"></script>
+        <script src="js/pullToRefresh.js"></script>
+         <script src="js/common-method.js"></script>
+    
+        <script>
+            window.localStorage.activityListTime = 1;
+            //定时参数    用于切换限时抢购时间取消上一次的定时器
+            var iCountParam = "";
+            //改变状态  刷新模板数据源 备份
+            var activityData = {};
+            //当前时间  用户切换时间变量判断点击的是哪个限时抢购时间
+            var currTime = "";
+            //当前限时抢购的时间的数据源
+            var activityCurrData = [];
+
+            //当前服务器时间   倒计时1s加1s  ms级别时间戳
+            var serverCountDownTime = "";
+
+            function travellerProductCategoryRequest(){
+                var routeDetail = {};
+                routeDetail.searchWord = getURLParameter('productKey');
+                var dataRequest = {};
+                dataRequest.requestMetaInfo = requestData();
+                dataRequest.SearchProductByKeyRequest = routeDetail;
+                var url = activityLink();
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    data: JSON.stringify(dataRequest),
+                    type: 'post',
+                    contentType: "application/json;utf-8",
+                    success: function (data) {
+
+                        if(data.responseMetaInfo.resultCode == 0)
+                        {
+                            serverCountDownTime = parseInt(data.SearchProductByKeyResponse.openApiServerDate);
+                            //增加一个minTitle 字段  用于传到详情页面
+                            for(var i=0; i<data.SearchProductByKeyResponse.products.length; i++)
+                            {
+                                for(var j=0; j<data.SearchProductByKeyResponse.products[i].activitys.length; j++)
+                                {
+                                    data.SearchProductByKeyResponse.products[i].activitys[j].minTitle = getURLParameter('minTitle');
+                                }
+                            }
+
+                            //给模板增加一个tempStatus字段  用于绘制时间下面的状态
+                            for(var i=0; i<data.SearchProductByKeyResponse.products.length; i++)
+                            {
+                                data.SearchProductByKeyResponse.products[i].tempStatus = data.SearchProductByKeyResponse.products[i].activitys[0].status;
+                            }
+                            activityData = data;
+
+                            //绘制限时抢购时间模板
+                            var myActivityTemplate = Handlebars.compile($("#template-activityNav").html());
+                            $('#temp-searchNav').html(myActivityTemplate(data));
+
+                            //绘制对应时间下的数据列表
+                            activityCurrData = data.SearchProductByKeyResponse.products[0].activitys;
+                            var myTemplate = Handlebars.compile($("#template-activityListTime").html());
+                            $('#div-activityListTime').html(myTemplate(activityCurrData));
+
+                            //默认选中限时抢购的第一个时间及其切换时间定时事件处理
+                            changeTimeAction(0);
+
+
+                            currTime = data.SearchProductByKeyResponse.products[0].beginDate;
+                            showTextDetail();
+                            var firstTime = data.SearchProductByKeyResponse.products[0].activitys[0].beginDate;
+                            var endTime = data.SearchProductByKeyResponse.products[0].activitys[0].endDate;
+                            timerOutAction((parseInt(firstTime)),(parseInt(endTime)))
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }
+
+            function showSelAction() {
+                for(var i=0; i<activityData.SearchProductByKeyResponse.products.length; i++)
+                {
+                    var timeTemp = activityData.SearchProductByKeyResponse.products[i].beginDate;
+                    if(timeTemp == currTime)
+                    {
+
+                        changeTimeAction(i);
+                        break;
+                    }
+                }
+            }
+
+            function  showTextDetail() {
+
+                for(var i=0; i<activityData.SearchProductByKeyResponse.products.length; i++)
+                {
+                    var timeTemp = activityData.SearchProductByKeyResponse.products[i].beginDate;
+                    if(timeTemp == currTime)
+                    {
+                        var tempStaus = activityData.SearchProductByKeyResponse.products[i].tempStatus;
+
+                        if(tempStaus == "runing")
+                        {
+                            $("#activitiy-time-status").html("距结束")
+                            $("#activitiy-list-status").html("抢购中")
+                        }
+                        else if(tempStaus == "end")
+                        {
+                            $("#activitiy-time-status").html("已结束")
+                            $("#activitiy-list-status").html("已结束")
+                        }
+                        else
+                        {
+                            $("#activitiy-time-status").html("距开始")
+                            $("#activitiy-list-status").html("即将开抢")
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            function timerOutAction(beginTime,endTime) {
+
+                var activityStartTime = beginTime;
+                var activityEndTime = endTime;
+
+                var time ;//= starttime - nowtime;
+
+                iCountParam = setInterval(function () {
+
+                    var day = parseInt(time / 1000 / 60 / 60 / 24);
+                    var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                    var minute = parseInt(time / 1000 / 60 % 60);
+                    var seconds = parseInt(time / 1000 % 60);
+                    if (day <= 9) day = '0' + day;
+                    if (hour <= 9) hour = '0' + hour;
+                    if (minute <= 9) minute = '0' + minute;
+                    if (seconds <= 9) seconds = '0' + seconds;
+                    //倒计时-1s
+                    time = time-1000;
+                    //当前时间+1s
+                    serverCountDownTime = serverCountDownTime + 1000;
+
+                    if( (day == '00' && hour == '00' && minute == '00' && seconds == '00') || (time <= 0))
+                    {
+                        if(activityStartTime > serverCountDownTime)    //等待开始
+                        {
+                            time = serverCountDownTime - activityStartTime;
+                        }
+                        else
+                        {
+                            if(activityEndTime > serverCountDownTime)   //活动中
+                            {
+                                time = activityEndTime - serverCountDownTime;
+
+                                //改变对应抢购时间下的活动状态
+                                for(var i=0; i<activityData.SearchProductByKeyResponse.products.length; i++)
+                                {
+                                    var timeTemp = activityData.SearchProductByKeyResponse.products[i].beginDate;
+                                    if(timeTemp == currTime)
+                                    {
+                                        activityData.SearchProductByKeyResponse.products[i].tempStatus = "runing";
+                                        break;
+                                    }
+                                }
+                                showTextDetail()
+
+                                //绘制限时抢购模板
+                                var myActivityTemplate = Handlebars.compile($("#template-activityNav").html());
+                                $('#temp-searchNav').html(myActivityTemplate(activityData));
+
+                                //绘制选中时间对应下列表模板
+                                for(var i=0; i<activityCurrData.length; i++)
+                                {
+                                    activityCurrData[i].status = "runing";
+                                }
+                                var myTemplate = Handlebars.compile($("#template-activityListTime").html());
+                                $('#div-activityListTime').html(myTemplate(activityCurrData));
+
+                                showSelAction()
+                            }
+                            else//结束
+                            {
+                                //改变对应抢购时间下的活动状态
+                                for(var i=0; i<activityData.SearchProductByKeyResponse.products.length; i++)
+                                {
+                                    var timeTemp = activityData.SearchProductByKeyResponse.products[i].beginDate;
+                                    if(timeTemp == currTime)
+                                    {
+                                        activityData.SearchProductByKeyResponse.products[i].tempStatus = "end";
+                                        break;
+                                    }
+                                }
+                                showTextDetail()
+
+                                var myActivityTemplate = Handlebars.compile($("#template-activityNav").html());
+                                $('#temp-searchNav').html(myActivityTemplate(activityData));
+
+                                //绘制选中时间对应下列表模板
+                                for(var i=0; i<activityCurrData.length; i++)
+                                {
+                                    activityCurrData[i].status = "end";
+                                }
+                                var myTemplate = Handlebars.compile($("#template-activityListTime").html());
+                                $('#div-activityListTime').html(myTemplate(activityCurrData));
+
+                                showSelAction();
+                                $('.timeGrayBgSpan').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                                clearInterval(iCountParam);
+                            }
+                        }
+                    }
+
+                    if(day == '00')
+                    {
+                        $('.timeGrayBgSpan').html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                    }
+                    else {
+                        day = parseInt(day);
+                        $('.timeGrayBgSpan').html("<i>" + parseInt(day) + "</i>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                    }
+                }, 1000);
+
+
+                if(activityStartTime > serverCountDownTime)    //等待开始
+                {
+                    time = activityStartTime - serverCountDownTime;
+                }
+                else
+                {
+                    if(activityEndTime > serverCountDownTime)   //活动中
+                    {
+                        time = activityEndTime - serverCountDownTime;
+                    }
+                    else//结束
+                    {
+                        $('.timeGrayBgSpan').html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                        clearInterval(iCountParam);
+                    }
+                }
+            }
+
+
+            //切换时间时间处理
+            function changeTimeAction(index) {
+                $(".nav-item").eq(index).addClass("active");
+                $(".nav-item").on("click",function () {
+
+                    $(this).addClass("active");
+                    $(this).siblings(".nav-item").removeClass("active")
+
+                    var selTime = $(this).find(".timeFonts").data('page');
+
+                    if(selTime == currTime)//如果当前选中的限时抢购时间和上一次一致  不处理
+                    {
+                        return;
+                    }
+
+                    clearInterval(iCountParam);
+
+                    for(var i=0; i<activityData.SearchProductByKeyResponse.products.length; i++)
+                    {
+                        var tempData = activityData.SearchProductByKeyResponse.products[i];
+                        if(selTime == tempData.beginDate)
+                        {
+                            currTime = selTime;
+                            activityCurrData = tempData.activitys;
+
+                            //重新绘制对应时间下的列表
+                            var myTemplate = Handlebars.compile($("#template-activityListTime").html());
+                            $('#div-activityListTime').html(myTemplate(activityCurrData));
+
+                            showTextDetail();
+                            var firstTime = tempData.activitys[0].beginDate;
+                            var endTime = tempData.activitys[0].endDate;
+                            timerOutAction((parseInt(firstTime)),(parseInt(endTime)))
+
+                            break;
+                        }
+                    }
+                })
+            }
+
+            function mineInfoBack() {
+                window.location.href = "activity.html";
+            }
+
+            $(function () {
+                travellerProductCategoryRequest()
+
+                document.addEventListener("visibilitychange", function() {
+                    //window.location.href=window.location.href+"?id="+10000*Math.random();
+                    window.location.reload();
+                    return false;
+                }, false);
+            })
+        </script>
+    </body>
+</html>

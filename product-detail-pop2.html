@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>其他</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+</head>
+
+<body>
+    <div class="proDetailPop-wrapper" style="font-size:.24rem;padding:.25rem">      
+    </div>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/common-method.js"></script>
+    <script>
+        $(function () {
+            var routeDetail = {};
+            routeDetail.customerKey = defaultLoginrespon().apiUserName;
+            routeDetail.routeId = getURLParameter('routeId');
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.GetRouteDetailRequest = routeDetail;
+
+            var url = travelLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    console.log(data);
+                    $('.proDetailPop-wrapper').append(data.GetRouteDetailResponse.backupDescs[0].content);
+
+                },
+                error: function (data) {
+
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

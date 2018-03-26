@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>查询列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <link rel="stylesheet" href="css/pullToRefresh.css" />
+    <style>
+        .searchList-nav {
+            display: table;
+            width: 100%;
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .searchList-nav span {
+            display: table-cell;
+            height: .8rem;
+            line-height: .8rem;
+            text-align: center;
+            color: #999;
+            font-size: .3rem;
+        }
+
+        .searchList-nav span.active {
+            border-bottom: 2px solid #fe6664;
+        }
+
+        .searchList-main {
+            position: absolute;
+            top: 1.64rem;
+            left: 0;
+            right: 0;
+            bottom: 1.08rem;
+        }
+
+        .searchList-main .product-box {
+            margin: .2rem;
+        }
+
+        .grysfw {
+            margin-top: .2rem;
+            margin-bottom: .3rem;
+        }
+
+        .u-filter .priceMin,
+        .u-filter .priceMax {
+            width: 2rem;
+            text-align: center;
+            height: .6rem;
+            font-size: .26rem;
+        }
+
+        .u-filter .ljf {
+            padding: 0 .2rem;
+        }
+    </style>
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function () {
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function () {
+                var vds = document.createElement('script');
+                vds.type = 'text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="index.html"></a>
+        </div>
+        <div class="common-title">
+        </div>
+        <div class="icon-search">
+            <a href="destination.html"></a>
+        </div>
+    </div>
+
+    <div class="searchList-nav" id="temp-searchNav">
+    </div>
+
+    <div class="searchList-main">
+        <div id="wrapper">
+            <ul id="temp-searchList">
+            </ul>
+        </div>
+    </div>
+
+    <div id="temp-bottomSel"></div>
+    <div id="loading"></div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/iscroll.js"></script>
+    <script src="js/pullToRefresh.js"></script>
+    <script src="js/common-method.js"></script>
+
+    <!--导航模板-->
+    <script id="template-searchNav" type="text/x-handlebars-template">
+        {{#each SearchRouteBySearchwordResponse.routeFormCounts}}
+        <span data-code="{{code}}" class="nav-item">{{name}}</span> {{/each}}
+    </script>
+
+    <!--列表内容模板-->
+    <script id="template-searchList" type="text/x-handlebars-template">
+        {{#each SearchRouteBySearchwordResponse.routeVo}}
+        <li class="product-box">
+            <a href="product-detail.html?routeId={{routeId}}&adultAdvicePrice={{adultAdvicePrice}}&adultDefaultPrice={{adultDefaultPrice}}"
+                data-proID="{{routeId}}" class="proList-link">
+                <div class="pic-box">
+                    <img src="{{defaultPicUrl}}" alt="">
+                    <div class="zuanji">
+                        <img src="{{productLevelStatus diamondLevel}}">
+                    </div>
+                    {{#if isTopHot}}
+                    <div class="is-hot">
+                        <img src="images/is-hot.png" alt="">
+                    </div>
+                    {{/if}}
+                </div>
+                <div class="product-details">
+                    <p class="title">{{saleRouteName}}</p>
+                    <div class="place-date">{{sourcePlace}} | {{groupDateStr}}</div>
+                    <div class="type-old clearfix">
+                        <div class="pic-type">
+                            <img src="{{imgItemStatus routeForm}}" alt="">
+                        </div>
+                        {{#if isAllIroncladGroup}}
+                        <div class="pic-type">
+                            <img src="images/pro-type2.png" alt="">
+                        </div>
+                        {{/if}}
+                        {{#priceEqual adultAdvicePrice adultDefaultPrice}}<span class="old-price">￥{{adultAdvicePrice}}</span>{{/priceEqual}}
+                    </div>
+                    <div class="clearfix">
+                        <div class="jd">{{productItemStatus diamondLevel}}</div>
+                        <div class="index-price">
+                            {{#priceEqual adultAdvicePrice adultDefaultPrice}}会员：{{/priceEqual}}<span class="price">￥<span class="number">{{adultDefaultPrice}}</span></span>起
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </li>
+        {{/each}}
+    </script>
+
+    <!--筛选后列表内容模板-->
+    <script id="template-searchList-after" type="text/x-handlebars-template">
+        {{#each SearchRoutesResponse.routeVo}}
+        <li class="product-box">
+            <a href="product-detail.html?routeId={{routeId}}" data-proID="{{routeId}}" class="proList-link">
+                <div class="pic-box">
+                    <img src="{{defaultPicUrl}}" alt="">
+                    <div class="zuanji">
+                        <img src="{{productLevelStatus diamondLevel}}">
+                    </div>
+                    {{#if isTopHot}}
+                    <div class="is-hot">
+                        <img src="images/is-hot.png" alt="">
+                    </div>
+                    {{/if}}
+                </div>
+                <div class="product-details">
+                    <p class="title">{{saleRouteName}}</p>
+                    <div class="place-date">{{sourcePlace}} | {{groupDateStr}}</div>
+                    <div class="type-old clearfix">
+                        <div class="pic-type">
+                            <img src="{{imgItemStatus routeForm}}" alt="">
+                        </div>
+                        {{#if isAllIroncladGroup}}
+                        <div class="pic-type">
+                            <img src="images/pro-type2.png" alt="">
+                        </div>
+                        {{/if}}
+                        {{#priceEqual adultAdvicePrice adultDefaultPrice}}<span class="old-price">￥{{adultAdvicePrice}}</span>{{/priceEqual}}
+                    </div>
+                    <div class="clearfix">
+                        <div class="jd">{{productItemStatus diamondLevel}}</div>
+                        <div class="index-price">
+                            {{#priceEqual adultAdvicePrice adultDefaultPrice}}会员：{{/priceEqual}}<span class="price">￥<span class="number">{{adultDefaultPrice}}</span></span>起
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </li>
+        {{/each}}
+    </script>
+
+
+    <!--底部筛选模板-->
+    <script id="template-bottomSel" type="text/x-handlebars-template">
+        <div class="search-opts">
+            <ul class="bottom-box clearfix" id="bind_search">
+                <li data-class="origin-place" class="originPlace">
+                    <i class="place"></i><span class="redPoint"></span>
+                    <p class="description">出发地</p>
+                </li>
+                <li data-class="u-sort" class="uSort">
+                    <i class="sort"></i><span class="redPoint"></span>
+                    <p class="description">排序</p>
+                </li>
+                <li data-class="u-filter" class="uFilter">
+                    <i class="filter"></i><span class="redPoint"></span>
+                    <p class="description">筛选</p>
+                </li>
+            </ul>
+        </div>
+        <div class="search-content">
+            <div class="w-mask"></div>
+            <div class="origin-place content-wrapper">
+                <h5 class="title">出发地</h5>
+                <ul class="clearfix listTab-wrapper" id="originPlaceList">
+                    <li class="active">不限</li>
+                    {{#each SearchRouteBySearchwordResponse.sourceCitys}}
+                    <li>{{this}}</li>
+                    {{/each}}
+                </ul>
+            </div>
+            <div class="u-sort content-wrapper">
+                <ul class="listTab-wrapper" id="sortList">
+                    <li data-sort="s1" class="active">默认排序</li>
+                    <li data-sort="s2">最新</li>
+                    <li data-sort="s3">最热</li>
+                    <li data-sort="s4">价格 低 &rarr; 高</li>
+                    <li data-sort="s5">价格 高 &rarr; 低</li>
+                </ul>
+            </div>
+            <div class="u-filter content-wrapper">
+                <form action="">
+                    <div class="top">
+                        <span class="fl" id="btnCancel">取消</span>
+                        <span id="clearSel">清空筛选</span>
+                        <span class="fr" id="selSubmit">确定</span>
+                    </div>
+                    <div class="tabs-container">
+                        <ul class="tabs-menu filter-item-list">
+                            <li class="tabs-nav filter-item1" name="#filter-item1">出行日期<span class="redPoint2"></span></li>
+                            <li class="tabs-nav filter-item2" name="#filter-item2">出行天数<span class="redPoint2"></li>
+                                    <li class="tabs-nav filter-item3" name="#filter-item3">钻级<span class="redPoint2"></li>
+                                    <li class="tabs-nav filter-item4" name="#filter-item4">价格范围<span class="redPoint2"></li>
+                                </ul>
+                                <div class="panel-wrapper">
+                                    <div class="tabs-panel" id="filter-item1">
+                                        <ul class="radio-wrapper listTab-wrapper">
+                                            <li class="active travelDate">不限</li>
+                                            {{#each SearchRouteBySearchwordResponse.departureDates}}
+                                            <li class="travelDate">{{this}}</li>
+                                            {{/each}}
+                                        </ul>
+                                    </div>
+                                    <div class="tabs-panel" id="filter-item2">
+                                        <ul class="radio-wrapper listTab-wrapper">
+                                            <li class="active travelDay">不限</li>
+                                            {{#each SearchRouteBySearchwordResponse.numOfDays}}
+                                            <li class="travelDay">{{this}}</li>
+                                            {{/each}}
+                                        </ul>
+                                    </div>
+                                    <div class="tabs-panel" id="filter-item3">
+                                        <ul class="radio-wrapper listTab-wrapper" id="transZJ">
+                                            <li class="active zuanjiSel">不限</li>
+                                            {{#each SearchRouteBySearchwordResponse.drillLevels}}
+                                            <li class="zuanjiSel">{{this}}</li>
+                                            {{/each}}
+                                        </ul>
+                                    </div>
+                                    <div class="tabs-panel" id="filter-item4">
+                                        <p class="grysfw">个人预算范围</p>
+                                        <div>
+                                            <input type="number" class="priceMin" placeholder="最低价"><span class="ljf">&mdash;</span>
+                                <input type="number" class="priceMax" placeholder="最高价">
+                    </div>
+            </div>
+        </div>
+        </div>
+        </form>
+        </div>
+        </div>
+    </script>
+
+
+
+    <script>
+        function mineInfoBack() {
+            window.location.href = "index.html";
+        }
+
+        $(function () {
+            storage.navcode = "ALL";
+            drawSearchNav();
+            drawSearchList();
+            drawBottomSel();
+            $('.common-title').text(getURLParameter('keyWord'));
+
+            $('.icon-search a').on('click', function () {
+                window.location.href = $(this).attr('href');
+            })
+        })
+        // 页面初始状态
+        // 全部变量
+        var storage = window.localStorage;
+        var linkPlace = getURLParameter('keyWord');; //目的地列表传入的目的地名
+        var routeDetail = {};
+        var dataRequest = {};
+        var url = travelLink();
+        routeDetail.page = "1";
+        routeDetail.pageSize = "20";
+        routeDetail.customerKey = defaultLoginrespon().apiUserName;
+        routeDetail.searchWord = linkPlace;
+        routeDetail.routeForm = "";
+        dataRequest.requestMetaInfo = requestData();
+
+        // 顶部导航渲染方法
+        function drawSearchNav() {
+            delete dataRequest.SearchRoutesRequest;
+            dataRequest.SearchRouteBySearchwordRequest = routeDetail;
+            $.ajax({
+                url: url,
+                async: true,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    var myTemplate = Handlebars.compile($("#template-searchNav").html());
+                    $('#temp-searchNav').html(myTemplate(data));
+
+                    $('.nav-item').each(function () {
+                        if ($(this).data('code') == storage.navcode) {
+                            $(this).addClass('active');
+                        }
+                    });
+                }
+            });
+        }
+
+        // 未筛选列表渲染方法
+        function drawSearchList() {
+            clearList();
+            routeDetail.page = "1";
+            delete dataRequest.SearchRoutesRequest;
+            dataRequest.SearchRouteBySearchwordRequest = routeDetail;
+            if (storage.navcode == "ALL") {
+                routeDetail.routeForm = "";
+            } else {
+                routeDetail.routeForm = storage.navcode;
+            }
+            $.ajax({
+                url: url,
+                async: true,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    console.log(data)
+                    var myTemplate = Handlebars.compile($("#template-searchList").html());
+                    $('#temp-searchList').html(myTemplate(data));
+
+                    var dataLen = data.SearchRouteBySearchwordResponse.routeVo.length;
+                    console.log(dataLen);
+                    console.log(routeDetail.page);
+                    if (data.SearchRouteBySearchwordResponse.totalCount == null) {
+                        $('#temp-searchList').html(
+                            '<li style="font-size:.28rem;text-align:center;color:#d6d6d6">暂无查询结果</li>')
+                    } else {
+                        // 渲染完成绑定上拉加载方法
+                        refresher.init({
+                            id: "wrapper",
+                            pullUpAction: Load
+                        })
+
+                        function Load() {
+                            setTimeout(function () {
+                                appendSearchList();
+                                wrapper.refresh();
+                            }, 500);
+                        }
+                    }
+                },
+                beforeSend: function () {
+                    $('#loading').show();
+                },
+                complete: function () {
+                    $('#loading').hide();
+                }
+            });
+        }
+
+        // 未筛选列表加载数据方法
+        function appendSearchList() {
+            routeDetail.page++;
+            $.ajax({
+                url: url,
+                async: true,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    var myTemplate = Handlebars.compile($("#template-searchList").html());
+                    $('#temp-searchList').append(myTemplate(data));
+                    console.log(data.SearchRouteBySearchwordResponse.routeVo.length);
+                    console.log(routeDetail.page)
+                }
+            });
+        }
+
+        // 筛选后列表渲染
+        function drawSearchListAfter() {
+            clearList();
+            filterElement(filterConditions);
+            console.log(filterConditions);
+            console.log(routeDetail);
+
+            routeDetail.page = "1";
+            delete dataRequest.SearchRouteBySearchwordRequest;
+            dataRequest.SearchRoutesRequest = routeDetail;
+            if (storage.navcode == "ALL") {
+                routeDetail.routeForm = "";
+            } else {
+                routeDetail.routeForm = storage.navcode;
+            }
+            $.ajax({
+                url: url,
+                async: true,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    console.log(data)
+                    var myTemplate = Handlebars.compile($("#template-searchList-after").html());
+                    $('#temp-searchList').html(myTemplate(data));
+                    console.log(data);
+
+                    if (data.SearchRoutesResponse.routeVo.length == 0) {
+                        $('#temp-searchList').html(
+                            '<li style="font-size:.28rem;text-align:center;color:#d6d6d6">暂无查询结果</li>');
+                    } else {
+                        // 渲染完成绑定上拉加载方法
+                        refresher.init({
+                            id: "wrapper",
+                            pullUpAction: Load
+                        })
+
+                        function Load() {
+                            setTimeout(function () {
+                                appendSearchListAfter();
+                                wrapper.refresh();
+                            }, 500);
+                        }
+                    };
+                },
+                beforeSend: function () {
+                    $('#loading').show();
+                },
+                complete: function () {
+                    $('#loading').hide();
+                },
+                error: function (data) {}
+            });
+        }
+
+        // 筛选后列表加载数据方法
+        function appendSearchListAfter() {
+            routeDetail.page++;
+            $.ajax({
+                url: url,
+                async: true,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    var myTemplate = Handlebars.compile($("#template-searchList-after").html());
+                    $('#temp-searchList').append(myTemplate(data));
+                    console.log(routeDetail.page)
+                }
+            });
+        }
+
+        //底部筛选渲染方法
+        function drawBottomSel() {
+            delete dataRequest.SearchRoutesRequest;
+            dataRequest.SearchRouteBySearchwordRequest = routeDetail;
+            if (storage.navcode == "ALL") {
+                routeDetail.routeForm = "";
+            } else {
+                routeDetail.routeForm = storage.navcode;
+            }
+            $.ajax({
+                url: url,
+                async: true,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    var myTemplate = Handlebars.compile($("#template-bottomSel").html());
+                    $('#temp-bottomSel').html(myTemplate(data));
+                    $('.tabs-container').tabs();
+                    translateZJ();
+                }
+            });
+        }
+
+        // 列表清空方法
+        function clearList() {
+            $('#wrapper').remove();
+            $('.searchList-main').html('<div id="wrapper"><ul id="temp-searchList"></ul></div>');
+        }
+
+        //钻级转换
+        function translateZJ() {
+            $('#transZJ>li').each(function () {
+                if ($(this).text() == "TWO_DIAMOND") {
+                    $(this).text('二钻');
+                } else if ($(this).text() == "THREE_DIAMOND") {
+                    $(this).text('三钻');
+                } else if ($(this).text() == "FOUR_DIAMOND") {
+                    $(this).text('四钻');
+                } else if ($(this).text() == "FIVE_DIAMOND") {
+                    $(this).text('五钻');
+                } else if ($(this).text() == "SIX_DIAMOND") {
+                    $(this).text('六钻');
+                }
+            })
+        }
+
+        // 过滤条件加参数
+        function filterElement(obj) {
+            // 出发地过滤
+            if (obj.originPlace && obj.originPlace != '不限') {
+                routeDetail.sourceCityList = [obj.originPlace];
+            } else {
+                delete routeDetail.sourceCityList;
+            }
+
+            // 排序条件过滤
+            if (obj.sortNum && obj.sortNum != "s1") {
+                if (obj.sortNum == "s2") {
+                    routeDetail.updateDate = true;
+                    delete routeDetail.orderNum;
+                    delete routeDetail.isASC;
+                    delete routeDetail.salePrice;
+                } else if (obj.sortNum == "s3") {
+                    routeDetail.orderNum = true;
+                    delete routeDetail.updateDate;
+                    delete routeDetail.isASC;
+                    delete routeDetail.salePrice;
+                } else if (obj.sortNum == "s4") {
+                    delete routeDetail.updateDate;
+                    delete routeDetail.orderNum;
+                    routeDetail.isASC = true;
+                    routeDetail.salePrice = true;
+                } else if (obj.sortNum == "s5") {
+                    delete routeDetail.updateDate;
+                    delete routeDetail.orderNum;
+                    routeDetail.isASC = false;
+                    routeDetail.salePrice = true;
+                };
+            } else {
+                delete routeDetail.updateDate;
+                delete routeDetail.orderNum;
+                delete routeDetail.isASC;
+                delete routeDetail.salePrice;
+            }
+
+
+            // 筛选过滤
+            if (obj.travelDate && obj.travelDate != "不限") {
+                routeDetail.yearMonthList = [obj.travelDate];
+            } else {
+                delete routeDetail.yearMonthList;
+            }
+
+            if (obj.travelDay && obj.travelDay != "不限") {
+                routeDetail.numOfDayList = [obj.travelDay];
+            } else {
+                delete routeDetail.numOfDayList;
+            }
+
+            if (obj.zuanLevel && obj.zuanLevel != "不限") {
+                if (obj.zuanLevel == '二钻') {
+                    routeDetail.routeRankList = ['TWO_DIAMOND'];
+                } else if (obj.zuanLevel == '三钻') {
+                    routeDetail.routeRankList = ['THREE_DIAMOND'];
+                } else if (obj.zuanLevel == '四钻') {
+                    routeDetail.routeRankList = ['FOUR_DIAMOND'];
+                } else if (obj.zuanLevel == '五钻') {
+                    routeDetail.routeRankList = ['FIVE_DIAMOND'];
+                } else if (obj.zuanLevel == '六钻') {
+                    routeDetail.routeRankList = ['SIX_DIAMOND'];
+                } else {
+                    routeDetail.routeRankList = [''];
+                };
+            } else {
+                delete routeDetail.routeRankList;
+            }
+
+            if (obj.priceMin) {
+                routeDetail.advicePriceMin = obj.priceMin;
+            } else {
+                delete routeDetail.advicePriceMin;
+            }
+
+            if (obj.priceMax) {
+                routeDetail.advicePriceMax = obj.priceMax;
+            } else {
+                delete routeDetail.advicePriceMax;
+            }
+
+        }
+
+
+
+        // 顶部导航点击事件
+        mui(document).on('tap', '.nav-item', function () {
+            $(this).addClass('active');
+            $('.nav-item').not(this).removeClass('active');
+
+            storage.navcode = $(this).data('code');
+            drawSearchList();
+            drawBottomSel();
+            filterConditions = {};
+        });
+
+        // 底部筛选绑定点击事件
+        mui(document).on('tap', '#bind_search>li', function () {
+            var _data = $(this).data('class');
+            $('.w-mask').css("visibility", 'visible');
+            $('.' + _data).css("visibility", 'visible');
+        });
+
+        //蒙版绑定点击事件
+        mui(document).on('tap', '.w-mask', function () {
+            $(this).css("visibility", 'hidden');
+            $(this).nextAll().css("visibility", 'hidden');
+        });
+
+
+        // 底部筛选条件+渲染
+        var filterConditions = {};
+        var filterTemp = {};
+
+        // 出发地列表点击
+        mui(document).on('tap', '#originPlaceList>li', function () {
+            var chooseVal = $(this).text();
+            if (chooseVal != "不限") {
+                $('.originPlace').addClass('showPoint');
+            } else {
+                $('.originPlace').removeClass('showPoint');
+            };
+
+            $(this).addClass('active');
+            $('#originPlaceList>li').not(this).removeClass('active');
+
+            $('.origin-place').css('visibility', 'hidden');
+            $('.w-mask').css('visibility', 'hidden');
+
+            filterConditions.originPlace = $(this).text();
+
+            drawSearchListAfter();
+        });
+
+
+
+        // 排序列表点击
+        mui(document).on('tap', '#sortList>li', function () {
+            var chooseVal = $(this).text();
+
+            $(this).addClass('active');
+            $('#sortList>li').not(this).removeClass('active');
+
+            if (chooseVal != "默认排序") {
+                $('.uSort').addClass('showPoint');
+            } else {
+                $('.uSort').removeClass('showPoint');
+            };
+
+            $('.u-sort').css('visibility', 'hidden');
+            $('.w-mask').css('visibility', 'hidden');
+
+            filterConditions.sortNum = $(this).data('sort');
+
+            drawSearchListAfter();
+        });
+
+        // 出行日期点击
+        mui(document).on('tap', '.travelDate', function () {
+            var chooseVal = $(this).text();
+            if (chooseVal != "不限") {
+                $('.filter-item1').addClass('showPoint');
+            } else {
+                $('.filter-item1').removeClass('showPoint');
+            };
+
+            $(this).addClass('active');
+            $(this).parent().find('li').not(this).removeClass('active');
+
+            filterTemp.travelDate = $(this).text();
+        });
+
+        // 出行天数点击
+        mui(document).on('tap', '.travelDay', function () {
+            var chooseVal = $(this).text();
+            if (chooseVal != "不限") {
+                $('.filter-item2').addClass('showPoint');
+            } else {
+                $('.filter-item2').removeClass('showPoint');
+            };
+
+            $(this).addClass('active');
+            $(this).parent().find('li').not(this).removeClass('active');
+
+            filterTemp.travelDay = $(this).text();
+        })
+
+        // 钻级点击
+        mui(document).on('tap', '.zuanjiSel', function () {
+            var chooseVal = $(this).text();
+            if (chooseVal != "不限") {
+                $('.filter-item3').addClass('showPoint');
+            } else {
+                $('.filter-item3').removeClass('showPoint');
+            };
+
+            $(this).addClass('active');
+            $(this).parent().find('li').not(this).removeClass('active');
+
+            filterTemp.zuanLevel = $(this).text();
+
+            if ($(this).text() == '二钻') {
+                zuanjiSel = 'TWO_DIAMOND';
+            } else if ($(this).text() == '三钻') {
+                zuanjiSel = 'THREE_DIAMOND';
+            } else if ($(this).text() == '四钻') {
+                zuanjiSel = 'FOUR_DIAMOND';
+            } else if ($(this).text() == '五钻') {
+                zuanjiSel = 'FIVE_DIAMOND';
+            } else if ($(this).text() == '六钻') {
+                zuanjiSel = 'SIX_DIAMOND';
+            } else {
+                zuanjiSel = '';
+            };
+        });
+
+        // 确定按钮点击
+        mui(document).on('tap', '#selSubmit', function () {
+            if ($('.priceMin').val() != '') {
+                filterTemp.priceMin = $('.priceMin').val();
+            } else {
+                filterTemp.priceMin = '';
+            }
+            if ($('.priceMax').val() != '') {
+                filterTemp.priceMax = $('.priceMax').val();
+            } else {
+                filterTemp.priceMax = '';
+            }
+
+            if ($('.filter-item-list').find('.showPoint').length > 0) {
+                $('.uFilter').addClass('showPoint');
+            } else {
+                $('.uFilter').removeClass('showPoint');
+            }
+
+            $('.u-filter').css('visibility', 'hidden');
+            $('.w-mask').css('visibility', 'hidden');
+
+            $.extend(filterConditions, filterTemp);
+            drawSearchListAfter();
+        });
+
+        // 取消按钮点击
+        mui(document).on('tap', '#btnCancel', function () {
+            $('.u-filter').css('visibility', 'hidden');
+            $('.w-mask').css('visibility', 'hidden');
+        })
+
+        // 清空筛选点击
+        mui(document).on('tap', '#clearSel', function () {
+            $('.travelDate').removeClass('active');
+            $('.travelDate').eq(0).addClass('active');
+            $('.travelDay').removeClass('active');
+            $('.travelDay').eq(0).addClass('active');
+            $('.zuanjiSel').removeClass('active');
+            $('.zuanjiSel').eq(0).addClass('active');
+            $('#filter-item4 input').val('');
+            $('.filter-item-list .tabs-nav').removeClass('showPoint');
+            filterTemp = {};
+            console.log(filterTemp);
+            console.log(filterConditions);
+        })
+
+        // 最小输入变化
+        $(document).on('change', '.priceMin', function () {
+            var priceMinVal = $('.priceMin').val();
+            var priceMaxVal = $('.priceMax').val();
+            if (priceMinVal == "" && priceMaxVal == "") {
+                $('.filter-item4').removeClass('showPoint');
+            } else {
+                $('.filter-item4').addClass('showPoint');
+            };
+        })
+
+        // 最大输入变化
+        $(document).on('change', '.priceMax', function () {
+            var priceMinVal = $('.priceMin').val();
+            var priceMaxVal = $('.priceMax').val();
+            if (priceMinVal == "" && priceMaxVal == "") {
+                $('.filter-item4').removeClass('showPoint');
+            } else {
+                $('.filter-item4').addClass('showPoint');
+            };
+        })
+
+
+        mui(document).on('tap', '.proList-link', function () {
+            window.location.href = $(this).attr('href');
+            storage.proID = $(this).data('proid');
+            storage.adultAdvicePrice = $(this).find('.old-price').text();
+            storage.adultDefaultPrice = $(this).find('.number').text();
+        })
+    </script>
+
+    <script>
+        $(function () {
+            $('html').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            $('body').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+        })
+    </script>
+</body>
+
+</html>

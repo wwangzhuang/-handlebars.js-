@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <link rel="stylesheet" href="css/expand.css">
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <!-- <div class="common-header" >
+        <div class="common-title">
+            激活优惠券
+        </div>
+    </div> -->
+    <div style="position:relative; height: 100%;">
+        <div class="bg" style="position:absolute; top: 0; left: 0; width: 100%; height:35%; text-align: center; background:-webkit-linear-gradient(left, #EF6260, #FF60BB);"><img src="images/lg.png" style="width: 1.6rem; margin-top:1rem" alt=""></div>
+        <div class="registerModule" style="position: absolute; box-shadow:0px 5px 8px rgba(0,0,0,.1); border-radius: 3px; padding:0.35rem .3rem; background:#fff; width: 90%; top: 26.4%; left: 0; right: 0; margin:0 auto; height: 365px;">
+            <div class="title" style="text-align: center; font-size: .38rem; color: #ff6565; margin-bottom: .3rem">
+                激活码注册
+            </div>    
+            <div class="registerChange">
+                <div>
+                    <input type="text" id="actCode" style="text-align: center; line-height: 1.5; font-size:14px; border:none; background:#f6f6f6;" placeholder="请输入激活码">
+                </div>
+                <p style="line-height: 0.36rem; font-size:12px;">绑定成功即在真旅网平台进行账户开通成功，系统会将优惠 券发放至开通的账户下。</p>
+                
+                <ul class="writeInfo">
+                    <li style="clear:both;height:43px; font-size:12px; line-height:40px; width:100%">
+                        <div style="width:100%" id="captcha_div"></div>
+                        <div style="float:left; font-size:0;">
+                            <span class="commonIcon phone" style="display:inline-block; width:28px;"></span>
+                            <input type="text" style="font-size:12px"  placeholder="请输入绑定手机号" value="" id="writePhone"/>
+                        </div>
+                        <a href="javascript:void(0);" class="gainCode" style="float:right; border:1px solid #37e1f8; color:#37e1f8; line-height: 24px; margin-top:6px; border-radius:2px; padding:0 5px" id="getAuthCode">获取验证码</a>
+                    </li>
+                    
+                    <li style="height:43px; line-height:40px">
+                        <div style="float:left; font-size:0;">
+                            <span class="commonIcon code" style="display:inline-block; width: 28px;"></span>
+                            <input type="text" style="font-size:12px" placeholder="请输入短信验证码" value="" id="authCode"/>
+                        </div>
+                        
+                    </li>
+                    
+                </ul>
+            </div>
+            <div class="bigRegisterBtn">
+                <a href="javascript:void(0);" class="bigRedBg" style="border-radius: 3px; height:40px; line-height:30px; font-size:.34rem" id="register-action">注册并激活</a>
+            </div>
+            <div class="registerAgreement" style="font-size:14px">
+                <span>注册即阅读并同意</span>
+                <a  onclick="agree()" style="font-size:12px; color:#ff6565">《真旅用户注册协议》</a>
+            </div>
+        </div> 
+    </div>
+    <div class="loadingGif">
+        <div id="loadingGif"></div>
+    </div>
+    
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="https://cstaticdun.126.net/load.min.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+
+    <script>
+        var mask = mui.createMask(function(){
+        });
+
+        function actionCode(data){
+            var routeDetail = {};
+            routeDetail.mobileNumber = $("#writePhone").val();
+            routeDetail.activationCode = $("#actCode").val();
+            routeDetail.captchaValidate = data.validate;
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppSendMarketingVerificationCodeUpgradeRequest = routeDetail;
+            var url = "https://apis.travelzen.com/service/flight/register";
+            if (isOp3 == 1)
+            {
+                url = "http://192.168.161.137:8480/service/flight/register";
+            }
+            $(document).ajaxStart(function(){
+//                mask.show()
+                $(".loadingGif").show();
+            });
+            $.ajax({
+                url: url + "?random=" + Math.random(),
+                dataType: 'json',
+                type: 'post',
+                data: JSON.stringify(dataRequest),
+                contentType: "application/json;utf-8",
+                timeout:30000,
+                success: function (data) {
+                    if(data.responseMetaInfo.resultCode == "0")
+                    {
+                        if(data.AppSendMarketingVerificationCodeUpgradeResponse.success==false){
+                            mui.alert(data.AppSendMarketingVerificationCodeUpgradeResponse.errorMsg);
+                        }else{
+                            //判断当前是否是在倒计时
+                            console.log(data.resultInfo)
+                            var countdown=60;
+                            timerOut(countdown);
+                        }
+                    }
+                },
+                error: function (data) {
+                    mui.alert("网络异常");
+                }
+            }); 
+            $(document).ajaxStop(function(){
+                $(".loadingGif").hide();
+            });
+        }
+
+        $(function(){
+            //获取短信验证码
+            $("#getAuthCode").click(function () {
+                if (!safevalid())
+                {
+                    return;
+                }
+                var strText = $("#getAuthCode").text();
+                if (strText == "获取验证码")
+                {
+                    initNECaptcha({
+                        // config对象，参数配置
+                        captchaId: '417585803a404ef6a497e7a69d4c82c0',
+                        element: '#captcha',
+                        element: '#captcha_div',
+                        mode: 'popup',
+                        width: 'auto',
+                        onVerify: function(err, data){
+                            if(data && data.validate){
+                                actionCode(data);
+                            }
+                        }
+                    }, function onload(instance) {
+                        // 初始化成功后得到验证实例instance，可以调用实例的方法
+                       console.log(instance)
+                       instance.popUp();
+                    }, function (err) {
+                        // 初始化失败后触发该函数，err对象描述当前错误信息
+                        console.log(err)
+                    })
+                }
+            });
+
+            //注册事件
+            $("#register-action").click(function () {
+                if (!safevalid())
+                {
+                    return;
+                }
+                regist();
+            });
+        });
+
+        function agree(){
+            window.location.href="register-agreement.html?q=ext";
+        }
+        
+        //安全验证
+        function safevalid() {
+            var actCode = $("#actCode").val();
+            if(actCode.length <= 0)
+            {
+                mui.alert("请输入激活码");
+                return false;
+            }
+            var phoneNumber = $("#writePhone").val();
+            if (!validatemobile(phoneNumber))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        //注册接口
+        function regist() {
+            if (!safevalid()) {
+                return;
+            }
+            var authCode = $("#authCode").val();
+            if (authCode.length <= 0) {
+                mui.alert("请输入短信验证码");
+                return;
+            }
+
+            var routeDetail = {};
+            routeDetail.activationCode = $("#actCode").val();
+            routeDetail.mobileNumber = $("#writePhone").val();
+            routeDetail.verificationCode = $("#authCode").val();
+            routeDetail.creationSource =  "H5_MARKETING";
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppMarketingRegisterRequest = routeDetail;
+
+            var url = "https://apis.travelzen.com/service/flight/register"
+            if (isOp3 == 1)
+            {
+                url = "http://192.168.161.137:8480/service/flight/register";
+            }
+            $(document).ajaxStart(function(){
+                $(".loadingGif").show();
+            });
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if(data.responseMetaInfo.resultCode == 0)
+                    {
+                        if(data.AppMarketingRegisterResponse.success==true){
+                            mui.alert("注册成功！")
+                            window.location.href="login.html"
+                        }else{
+                            mui.alert(data.AppMarketingRegisterResponse.errorMsg)
+                        }
+                    }
+                    else
+                    {
+                        mui.alert(data.responseMetaInfo.reason);
+                        console.log(data.responseMetaInfo.reason);}
+                    },
+                error: function (data) {
+                    console.log(data)
+                }
+            });
+            $(document).ajaxStop(function(){
+                $(".loadingGif").hide();
+            });
+        }
+
+        function validatemobile(mobile) {
+            if (mobile.length == 0) {
+                mui.alert('请输入手机号码！');
+                return false;
+            }
+            if (mobile.length != 11) {
+                mui.alert('请输入有效的手机号码！');
+                return false;
+            }
+
+            if (!(/^1[34578]\d{9}$/.test(mobile))) {
+                mui.alert('请输入有效的手机号码！');
+                return false;
+            }
+            return true;
+        }
+
+        function timerOut(countdown)
+        {
+            if (countdown == 0) {
+                $("#getAuthCode").text('获取验证码');
+                countdown = 60;
+            } else {
+                $("#getAuthCode").text("重新发送(" + countdown + "s)");
+                countdown--;
+            }setTimeout(function() {
+            if (countdown != 60) {
+                timerOut(countdown)
+            }
+            },1000)
+        }
+    </script>
+    
+
+</body>
+
+</html>

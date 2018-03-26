@@ -1,0 +1,20 @@
+.writeInfo .phone{
+	background:url(../images/ph.png) no-repeat;
+	background-size: contain;
+}
+.writeInfo .code{
+	background:url(../images/ps.png) no-repeat;
+	background-size: contain;
+}
+.mui-backdrop{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 998;
+    background-color: rgba(0,0,0,.3); 
+    background-image: url(../images/loading.gif); 
+    background-repeat: no-repeat; 
+    background-position: center;
+}

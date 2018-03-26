@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>资料详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <link rel="stylesheet" href="css/mui.picker.css">
+    <link rel="stylesheet" href="css/mui.poppicker.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+<div class="common-header">
+    <div class="icon-back" onclick="mineInfoBack()">
+        <a href="#"></a>
+    </div>
+    <div class="common-title">
+        资料详情
+    </div>
+    <div class="icon-add" id="detail-informatino-save">
+
+    </div>
+</div>
+<div class="registerModule" id="mine-infoformationDetail">
+</div>
+
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/handlebars-v4.0.5.js"></script>
+<script src="js/mui.min.js"></script>
+<script src="js/mui.picker.js"></script>
+<script src="js/mui.poppicker.js"></script>
+<script src="projectJs/city.data-3.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/swiper-3.4.2.jquery.min.js"></script>
+<script src="js/jq-plugins.js"></script>
+<script src="projectJs/jQuery.md5.js"></script>
+<script src="projectJs/normal.js"></script>
+<script src="http://passport.cnblogs.com/scripts/jsencrypt.min.js"></script>
+
+<script id="detail-infomation-template" type="text/x-handlebars-template">
+    <div class="registerChange">
+        <ul class="writeInfo">
+            {{#companyOrPersion AppUserInfoResponse.customerType}}
+            <li>
+                <span class="">用户名称：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.firstName}} disabled id="companyinfo-user"/>
+            </li>
+            <li>
+                <span class="">绑定手机：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.mobileNumber}} disabled id="companyinfo-tel"/>
+            </li>
+            <li>
+                <span class="">公司简称：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.shortName}} disabled id="companyinfo-shortname"/>
+            </li>
+            <li>
+                <span class="">联系人：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.contactUserName}} disabled id="companyinfo-contact"/>
+            </li>
+            <li>
+                <span class="">联系邮箱：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.email}} disabled id="companyinfo-mail"/>
+            </li>
+            <li>
+                <span class="">公司名称：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.companyName}} disabled id="companyinfo-name"/>
+            </li>
+            <li>
+                <span class="">联系地址：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.province}}{{AppUserInfoResponse.city}}{{AppUserInfoResponse.district}} disabled id="companyinfo-address"/>
+            </li>
+            <li>
+                <span class="">详细地址：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.street}} disabled id="companyinfo-details-address"/>
+            </li>
+            {{else}}
+            <li>
+                <span class="">用户名称：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.contactUserName}} disabled id="persioninfo-user"/>
+            </li>
+            <li>
+                <span class="">简称：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.shortName}} disabled id="persioninfo-short"/>
+            </li>
+            <li>
+                <span class="">绑定手机：</span>
+                <input disabled id="persioninfo-tel" type="text" placeholder="" value={{AppUserInfoResponse.mobileNumber}}>
+            </li>
+            <li>
+                <span class="">姓名：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.contactPerson}}  id="persioninfo-name"/>
+            </li>
+            <li>
+                <span class="">联系邮箱：</span>
+                <input type="text" placeholder="" value={{AppUserInfoResponse.email}} id="persioninfo-mail"/>
+            </li>
+            <li>
+                <span class="">联系地址：</span>
+                <input type="text" placeholder="" onclick="addSelectAction()" value={{AppUserInfoResponse.province}}{{AppUserInfoResponse.city}}{{AppUserInfoResponse.district}} readonly="true" id="persioninfo-address"/>
+            </li>
+            <li>
+                <span class="">详细地址：</span>
+                <input type="text" placeholder="" value="" id="persioninfo-details-address"/>
+            </li>
+            {{/companyOrPersion}}
+
+        </ul>
+    </div>
+</script>
+<script id="detailsave-infomation-template" type="text/x-handlebars-template">
+    {{#companyOrPersion AppUserInfoResponse.customerType}}
+    {{else}}
+    <a href="#" onclick="saveAction()">保存</a>
+    {{/companyOrPersion}}
+</script>
+
+<script>
+    editineInfoDetail()
+
+    function mineInfoBack(){
+        window.location.href = "my.html";
+    };
+
+    function addSelectAction() {
+        var cityPicker3 = new mui.PopPicker({
+            layer: 3
+        });
+        cityPicker3.setData(cityData3);
+
+        cityPicker3.show(function (items) {
+            var result = "你选择的城市是:" + (items[0] || {}).text + " " + (items[1] || {}).text + " " + (items[2] || {}).text;
+
+            window.localStorage.province = (items[0] || {}).text;
+            window.localStorage.city = (items[1] || {}).text;
+            window.localStorage.district = (items[2] || {}).text;
+
+            $("#persioninfo-address").val(window.localStorage.province+window.localStorage.city+window.localStorage.district);
+        });
+    }
+
+    function saveAction() {
+
+        var name = $("#persioninfo-name").val();
+        if (name.length <= 0) {
+            alert("姓名不能为空");
+            return;
+        }
+
+        var email = $("#persioninfo-mail").val();
+        if (email.length <= 0)
+        {
+            alert("姓名不能为空");
+            return;
+        }
+        if (!check(email))
+        {
+            return;
+        }
+
+        var  address = $("#persioninfo-address").val();
+        if (address.length <= 0)
+        {
+            alert("地址不能为空");
+            return;
+        }
+
+        var detail = $("#persioninfo-details-address").val();
+        if (detail.length <= 0)
+        {
+            alert("详细地址不能为空");
+            return;
+        }
+
+        var url = "https://app.travelzen.com/tops-openapi-for-customers";
+        if(isOp3)
+        {
+            url = "http://192.168.161.137:8480";
+        }
+
+        var routeDetail = {};
+        routeDetail.username = localStorage.userName;
+        routeDetail.oldUsername = localStorage.userName;
+        routeDetail.mobileNumber = localStorage.mobileNumber;
+        routeDetail.shortName = $("#persioninfo-short").val();
+        routeDetail.contactPerson = name;
+        routeDetail.street = detail;
+        routeDetail.email = email;
+        routeDetail.province = localStorage.province;
+        routeDetail.city = localStorage.city;
+
+        if(routeDetail.province.indexOf("市") > 0 )
+        {
+            var position = routeDetail.province.indexOf("市");
+            routeDetail.province = routeDetail.province.substr(0,position);
+        }
+
+        if(routeDetail.city.indexOf("市") > 0 )
+        {
+            var position = routeDetail.city.indexOf("市");
+            routeDetail.city = routeDetail.city.substr(0,position);
+        }
+        
+        routeDetail.district = localStorage.district;
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.AppCompletePersonalInfoRequest = routeDetail;
+
+        url = url + "/service/flight/register";
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function (data) {
+                if(data.responseMetaInfo.resultCode == 0)
+                {
+                    if(data.AppCompletePersonalInfoResponse.result == "SUCCESS")
+                    {
+                        window.location.href = "index.html";
+                    }
+                    else
+                    {
+                        alert(data.AppCompletePersonalInfoResponse.errInfo);
+                    }
+                }
+                else
+                {
+
+                }
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+
+    //获取用户信息
+    function editineInfoDetail() {
+
+        var localStorage = window.localStorage;
+        var routeDetail = {};
+        routeDetail.loginUserName = localStorage.userName;
+
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.AppUserInfoRequest = routeDetail;
+
+        var url = normalInfoLink() + "/flight/domestic";
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function (data) {
+                if(data.responseMetaInfo.resultCode == 0)
+                {
+                    data.AppUserInfoResponse.mobileNumber = window.localStorage.contactMobile;
+                    if(data.AppUserInfoResponse.customerType == "公司")
+                    {
+                        data.AppUserInfoResponse.firstName = window.localStorage.userName;
+                    }
+                    else
+                    {
+                        data.AppUserInfoResponse.contactUserName = window.localStorage.userName;
+                    }
+                    if(data.AppUserInfoResponse.province && data.AppUserInfoResponse.province.length > 0)
+                    {
+                        window.localStorage.province = data.AppUserInfoResponse.province;
+                        window.localStorage.city = data.AppUserInfoResponse.city;
+                        window.localStorage.district = data.AppUserInfoResponse.district;
+                    }
+                    var myTemplate = Handlebars.compile($("#detail-infomation-template").html());
+                    $("#mine-infoformationDetail").html(myTemplate(data));
+
+                    var myTemplate = Handlebars.compile($("#detailsave-infomation-template").html());
+                    $("#detail-informatino-save").html(myTemplate(data));
+
+
+                    $("#persioninfo-details-address").val(data.AppUserInfoResponse.street);
+                    $("#persioninfo-details-address").val(data.AppUserInfoResponse.street);
+                }
+                else
+                {
+
+                }
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅客信息</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/mui.picker.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back"  onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            旅客信息
+        </div>
+    </div>
+    <div class="addTraveller">
+        <form action="">
+            <div class="mod user-detail">
+                <ul>
+                    <li>
+                        <span class="title">中文名</span>
+                        <input type="text" placeholder="请与证件上保持一致" value="" class="u-input" id="info-cnName">
+                    </li>
+                    <li>
+                        <span class="title">英文姓</span>
+                        <input type="text" placeholder="如张小四“zhang”" value="" class="u-input" id="info-enSex">
+                    </li>
+                    <li>
+                        <span class="title">英文名</span>
+                        <input type="text" placeholder="如张小四“xiaosi”" value="" class="u-input" id="info-enName">
+                    </li>
+                    <li>
+                        <span class="title">手机号</span>
+                        <input type="text" placeholder="用于接收短信" value="" class="u-input" id="info-contact">
+                    </li>
+                    <li>
+                        <span class="title">类型</span>
+                        <select class="sel-type" id="info-type">
+                            <option value="5">成人</option>
+                            <option value="6">儿童</option>
+                            <option value="7">婴儿</option>
+                        </select>
+                        <i class="icon-right"></i>
+                    </li>
+                    <li>
+                        <span class="title" id="info-sex">性别</span>
+                        <span class="sex-man active">男</span>
+                        <div class="mui-switch mui-switch-mini my-switch">
+                            <div class="mui-switch-handle"></div>
+                        </div>
+                        <span class="sex-male">女</span>
+                    </li>
+                    <li class="">
+                        <span class="title">出生日期</span>
+                        <input type="date" placeholder="" class="u-date" id="info-birthday">
+                        <i class="icon-right"></i>
+                    </li>
+                </ul>
+            </div>
+            <div class="addCards">
+                <div class="chooseCard">
+                    <span class="title">请添加证件</span>
+                    <select name="" id="chooseCard">
+                        <option value="1">身份证</option>
+                        <option value="2">护照</option>
+                        <option value="3">其他</option>
+                    </select>
+                    <i class="add-a" id="addCardBtn"></i>
+                    <i class="icon-right"></i>
+                </div>
+                <div id="cardsWrapper">
+                    
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="addTraveller-submit" id="travellerDetail-sure">确定</div>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+
+    <script>
+
+        function mineInfoBack(){
+            newTravelStatus();
+        };
+
+        //常旅客信息
+        var travelInfo = {};
+
+        //初始化一个常旅客默认信息
+        function initTravelInfo() {
+            travelInfo.birthday = "";
+            travelInfo.contact = "";
+            travelInfo.enName = "";
+            travelInfo.gender = "MALE";
+            travelInfo.name = "";
+            travelInfo.nationality = "中国";
+            travelInfo.type = "ADU";
+            travelInfo.travellerKey = "";
+            travelInfo.papers = new Array();;
+        }
+
+
+        mui(document).on('tap', '.u-nationality', function () {
+
+            //先保存输入的数据
+            travelInfo.name = $("#info-cnName").val();
+
+            var enSex = $("#info-enSex").val();
+
+            var enName = $("#info-enName").val();
+            travelInfo.enName = enSex + "/" + enName;
+
+            var contact = $("#info-contact").val();
+
+            travelInfo.contact = contact;
+
+            var birthday = $("#info-birthday").val();
+
+            travelInfo.birthday = birthday;
+
+            //身份证信息
+            var  papers = new  Array();
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == "NI")
+                {
+                    var niNumber = $("#ni-number").val();
+                    info.number = niNumber;
+                    papers.push(info);
+                    break;
+                }
+            }
+
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == "PP")
+                {
+                    var ppNumber = $("#pp-number").val();
+                    info.number = ppNumber;
+                    var ppdealdate = $("#pp-dealdate").val();
+                    info.deadline = ppdealdate;
+
+                    papers.push(info);
+                    break;
+                }
+            }
+
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == "ID")
+                {
+                    var idNumber = $("#id-number").val();
+                    info.number = idNumber;
+                    var iddealdate = $("#id-dealdate").val();
+                    info.deadline = iddealdate;
+
+                    papers.push(info);
+                    break;
+                }
+            }
+            travelInfo.papers = papers;
+
+            var aduType = $("#info-type").val();
+            if(aduType == "5")
+            {
+                travelInfo.type = "ADU";
+            }
+            else if(aduType == "6")
+            {
+                travelInfo.type = "CHD";
+            }
+            else
+            {
+                travelInfo.type = "INF";
+            }
+            window.localStorage.travellerInfo = JSON.stringify(travelInfo);
+
+            window.location.href = "choosenationality.html";
+        });
+
+
+        function resetInfoTravel() {
+            $("#info-cnName").val(travelInfo.name);
+
+            if(travelInfo.enName)
+            {
+                var index = travelInfo.enName.indexOf("/");
+
+                $("#info-enSex").val(travelInfo.enName.substr(0,index));
+                $("#info-enName").val(travelInfo.enName.substr(index+1,travelInfo.enName.length-1));
+            }
+
+            $("#info-contact").val(travelInfo.contact);
+
+            $("#info-birthday").val(travelInfo.birthday);
+
+            $(".u-nationality").text(travelInfo.nationality);
+
+            if(travelInfo.gender == "MALE")
+            {
+                $('.sex-man').addClass('active');
+                $('.sex-male').removeClass('active');
+                $('.my-switch').removeClass('mui-active')
+            }
+            else
+            {
+                $('.sex-man').removeClass('active');
+                $('.sex-male').addClass('active');
+                $('.my-switch').addClass('mui-active')
+            }
+
+            if(travelInfo.type == "ADU")
+            {
+                $("#info-type").val("5");
+            }
+            else if(travelInfo.type == "CHD")
+            {
+                $("#info-type").val("6");
+            }
+            else
+            {
+                $("#info-type").val("7");
+            }
+        }
+
+        $(function () {
+            //判断当前缓存是否存在常旅客信息
+            var info;
+            if(window.localStorage.travellerInfo){
+                info = JSON.parse(window.localStorage.travellerInfo);
+            }
+            if(info)
+            {
+                travelInfo = info;
+                if(travelInfo.papers.length > 0)
+                {
+                    for (var i=0; i<travelInfo.papers.length; i++)
+                    {
+                        var travelItem = travelInfo.papers[i];
+                        if(travelItem.type == "NI")
+                        {
+                            $('#cardsWrapper').append(
+                                    '<div class="mod cards-content" data-type="NI"><ul><li><span class="title">证件类型</span><span class="hasSelCard">身份证</span><i class="remove-a"></i></li><li><span class="title">证件号</span><input type="text"placeholder="请输入证件号码"value=""class="u-input" id="ni-number"></li></ul></div>'
+                            )
+
+                            $("#ni-number").val(travelItem.number);
+                        }
+                        else if(travelItem.type == "PP")
+                        {
+                            $('#cardsWrapper').append(
+                                    '<div class="mod cards-content" data-type="PP"><ul><li><span class="title">证件类型</span><span class="hasSelCard">护照</span><i class="remove-a"></i></li><li><span class="title">证件号</span><input type="text"placeholder="请输入证件号码"value=""class="u-input" id="pp-number"></li><li><span class="title">国籍</span><a class="u-nationality"></a><i class="icon-right"></i></li><li><span class="title">证件有效期</span><input type="date" placeholder="请输入有效证件有效日期"value=""class="u-date" id="pp-dealdate"><i class="icon-right"></i></li></ul></div>'
+                            )
+
+                            $("#pp-number").val(travelItem.number);
+                            $("#pp-dealdate").val(travelItem.deadline);
+                        }
+                        else
+                        {
+                            $('#cardsWrapper').append(
+                                    '<div class="mod cards-content" data-type="ID"><ul><li><span class="title" id="ID">证件类型</span><span class="hasSelCard">其他</span><i class="remove-a"></i></li><li><span class="title">证件号</span><input type="text"placeholder="请输入证件号码"value=""class="u-input" id="id-number"></li><li><span class="title">证件有效期</span><input type="date" placeholder="请输入有效证件有效日期"value=""class="u-date" id="id-dealdate"><i class="icon-right"></i></li></ul></div>'
+                            )
+                            $("#id-number").val(travelItem.number);
+                            $("#id-dealdate").val(travelItem.deadline);
+                        }
+                    }
+                }
+
+                //编辑常旅客赋值
+                resetInfoTravel();
+            }
+            else
+            {
+                initTravelInfo();
+            }
+
+            mui.init();
+            $('.my-switch').on("toggle", function (event) {
+                if (event.detail.isActive) {
+                    $('.sex-man').removeClass('active');
+                    $('.sex-male').addClass('active');
+                } else {
+                    $('.sex-man').addClass('active');
+                    $('.sex-male').removeClass('active');
+                }
+
+                if($('.sex-man').hasClass('active'))
+                {
+                    travelInfo.gender = "MALE";
+                }
+                else
+                {
+                    travelInfo.gender = "FEMALE";
+                }
+            });
+
+            $('#addCardBtn').on('click', function () {
+                if ($('.cards-content').length < 3) {
+                    if ($('#chooseCard').val() == 1) {
+                        var arr = [];
+                        $('.hasSelCard').each(function () {
+                            arr.push($(this).text());
+                        })
+                        if (arr.indexOf('身份证') == '-1') {
+                            $('#cardsWrapper').append(
+                                '<div class="mod cards-content" data-type="NI"><ul><li><span class="title">证件类型</span><span class="hasSelCard">身份证</span><i class="remove-a"></i></li><li><span class="title">证件号</span><input type="text"placeholder="请输入证件号码"value=""class="u-input" id="ni-number"></li></ul></div>'
+                            )
+
+                            addCardInfo("NI");
+                        } else {
+                            return false;
+                        }
+
+                    } else if ($('#chooseCard').val() == 2) {
+                        var arr = [];
+                        $('.hasSelCard').each(function () {
+                            arr.push($(this).text());
+                        })
+                        if (arr.indexOf('护照') == '-1') {
+                            $('#cardsWrapper').append(
+                                '<div class="mod cards-content" data-type="PP"><ul><li><span class="title">证件类型</span><span class="hasSelCard">护照</span><i class="remove-a"></i></li><li><span class="title">证件号</span><input type="text"placeholder="请输入证件号码"value=""class="u-input" id="pp-number"></li><li><span class="title">国籍</span><a class="u-nationality"></a><i class="icon-right"></i></li><li><span class="title">证件有效期</span><input type="date"placeholder="请输入有效证件有效日期"value=""class="u-date" id="pp-dealdate"><i class="icon-right"></i></li></ul></div>'
+                            )
+
+                            addCardInfo("PP");
+                        } else {
+                            return false;
+                        }
+
+                    } else {
+                        var arr = [];
+                        $('.hasSelCard').each(function () {
+                            arr.push($(this).text());
+                        })
+                        if (arr.indexOf('其他') == '-1') {
+                            $('#cardsWrapper').append(
+                                '<div class="mod cards-content" data-type="ID"><ul><li><span class="title" id="ID">证件类型</span><span class="hasSelCard">其他</span><i class="remove-a"></i></li><li><span class="title">证件号</span><input type="text"placeholder="请输入证件号码"value=""class="u-input" id="id-number"></li><li><span class="title">证件有效期</span><input type="date"placeholder="请输入有效证件有效日期"value=""class="u-date" id="id-dealdate"><i class="icon-right"></i></li></ul></div>'
+                            )
+
+                            addCardInfo("ID");
+                        } else {
+                            return false;
+                        }
+                    };
+                } else {
+                    return false;
+                }
+            });
+
+            $(document).on('click', '.remove-a', function () {
+                $(this).closest('.cards-content').remove();
+
+                var type =  $(this).closest('.cards-content').data("type");
+                removeCardInfo(type)
+            })
+
+        });
+
+        function addCardInfo(str) {
+            var cardInfo = {};
+            cardInfo.type = str;
+            if(str == "PP")
+            {
+                travelInfo.nationality = "中国";
+                $(".u-nationality").text("中国");
+            }
+            travelInfo.papers.push(cardInfo);
+        }
+
+
+        function removeCardInfo(str) {
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == str)
+                {
+                    travelInfo.papers.splice(i,1);
+                    break;
+                }
+            }
+        }
+        
+        $("#travellerDetail-sure").click(function () {
+
+            var chineseName = $("#info-cnName").val();
+            if (chineseName.length <= 0) {
+                alert("请输入中文名称");
+                return;
+            }
+
+            if(!isChinese(chineseName))
+            {
+                alert("中文名称格式不正确");
+                return;
+            }
+
+            if(chineseName.length < 2 || chineseName.length > 5)
+            {
+                alert("姓名请输入2~5个中文字符");
+                return;
+            }
+
+            travelInfo.name = chineseName;
+
+            var enSex = $("#info-enSex").val();
+            if (enSex.length <= 0) {
+                alert("请输入英文姓");
+                return;
+            }
+
+            if(!isEnglish(enSex))
+            {
+                alert("英文姓格式不正确");
+                return;
+            }
+
+            var enName = $("#info-enName").val();
+            if (enName.length <= 0) {
+                alert("请输入英文名");
+                return;
+            }
+
+            if(!isEnglish(enName))
+            {
+                alert("英文名格式不正确");
+                return;
+            }
+            travelInfo.enName = enSex + "/" + enName;
+
+            var contact = $("#info-contact").val();
+            if (!validatemobile(contact)) {
+                return;
+            }
+            travelInfo.contact = contact;
+
+            var birthday = $("#info-birthday").val();
+            if (birthday.length <= 0) {
+                alert("请选择出生日期");
+                return;
+            }
+            travelInfo.birthday = birthday;
+
+            if (travelInfo.papers.length <= 0)
+            {
+                alert("请至少完善一项证件类型信息");
+                return;
+            }
+
+            var papers = new Array();
+            //身份证信息
+            var niCardInfo = {};
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == "NI")
+                {
+                    var niNumber = $("#ni-number").val();
+
+                    if (niNumber.length <= 0)
+                    {
+                        alert("请完善身份证信息");
+                        return;
+                    }
+                    if(!IDCardCheck(niNumber))
+                    {
+                        return;
+                    }
+                    info.number = niNumber;
+
+                    niCardInfo.identityType = "NI";
+                    niCardInfo.number = niNumber;
+                    papers.push(niCardInfo);
+                    break;
+                }
+            }
+
+            var ppCardInfo = {};
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == "PP")
+                {
+                    var ppNumber = $("#pp-number").val();
+
+                    if (ppNumber.length <= 0)
+                    {
+                        alert("请完善护照信息");
+                        return;
+                    }
+                    info.number = ppNumber;
+                    var ppdealdate = $("#pp-dealdate").val();
+                    if (ppdealdate.length <= 0)
+                    {
+                        alert("请完善护照信息");
+                        return;
+                    }
+
+                    info.deadline = ppdealdate;
+
+                    ppCardInfo.identityType = "PP";
+                    ppCardInfo.number = ppNumber;
+                    ppCardInfo.deadline = ppdealdate;
+                    papers.push(ppCardInfo);
+                    break;
+                }
+            }
+
+            var idCardInfo = {};
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var info = travelInfo.papers[i];
+                if (info.type == "ID")
+                {
+                    var idNumber = $("#id-number").val();
+
+                    if (idNumber.length <= 0)
+                    {
+                        alert("请完善其他证件类型信息");
+                        return;
+                    }
+                    info.number = idNumber;
+
+                    var iddealdate = $("#id-dealdate").val();
+                    if (iddealdate.length <= 0)
+                    {
+                        alert("请完善其他证件类型信息");
+                        return;
+                    }
+
+                    info.deadline = iddealdate;
+
+
+                    idCardInfo.identityType = "ID";
+                    idCardInfo.number = idNumber;
+                    idCardInfo.deadline = iddealdate;
+                    papers.push(idCardInfo);
+                    break;
+                }
+            }
+
+            if(papers.length > 0) {
+                travelInfo.papers = papers;
+            }
+
+            var aduType = $("#info-type").val();
+            if(aduType == "5")
+            {
+                travelInfo.type = "ADU";
+            }
+            else if(aduType == "6")
+            {
+                travelInfo.type = "CHD";
+            }
+            else
+            {
+                travelInfo.type = "INF";
+            }
+
+            //判断性别和身份证是否一致
+            for(var i=0; i<travelInfo.papers.length; i++)
+            {
+                var item = travelInfo.papers[i];
+                if(item.identityType == "NI")
+                {
+                    var male = getSex(item.number);
+                    var gender = 0;
+                    if(travelInfo.gender == "MALE")
+                    {
+                        gender = 1;
+                    }
+
+                    if(parseInt(male)%2 != gender)
+                    {
+                        alert("请选择正确的性别");
+                        return;
+                    }
+
+                    var birthday = getBirthday(item.number)
+                    if(birthday != travelInfo.birthday)
+                    {
+                        alert("出生日期和身份证不符合");
+                        return;
+                    }
+                }
+            }
+
+            var ageGender = jsGetAge(travelInfo.birthday);
+            if((ageGender < 12 && travelInfo.type == "ADU") || ((ageGender >= 12|| ageGender < 2) && travelInfo.type == "CHD") || (ageGender >= 2 && travelInfo.type == "INF"))
+            {
+                alert("出生日期和乘客类型不匹配");
+                return;
+            }
+
+            if(travelInfo.travellerKey.length > 0)//编辑常旅客
+            {
+                newTravelInfo(1);
+            }
+            else
+            {
+                newTravelInfo(0);
+            }
+        });
+
+
+        //新增常旅客
+        function newTravelInfo(str) {
+            var routeDetail = {};
+            routeDetail.birthday = travelInfo.birthday;
+            routeDetail.enName = travelInfo.enName;
+            routeDetail.gender = travelInfo.gender;
+            routeDetail.mobile = travelInfo.contact;
+            routeDetail.name = travelInfo.name;
+            routeDetail.nationality = travelInfo.nationality;
+            routeDetail.type = travelInfo.type;
+            routeDetail.papers = travelInfo.papers;
+            if(str == 1)
+            {
+                routeDetail.key = travelInfo.travellerKey;
+            }
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            if(str == 0) {
+                dataRequest.TravellerAddRequest = routeDetail;
+            }
+            else
+            {
+                dataRequest.TravellerUpdateRequest = routeDetail;
+            }
+
+            var url = normalInfoLink() + "/flight/basic";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if(data.responseMetaInfo.resultCode == 0)
+                    {
+                        //常旅客缓存是不是存在改常旅客  是的话就更新对应的常绿
+                        var arrData = new Array()
+                        var seedData = new Array();
+
+                        if(window.localStorage.seedData)
+                        {
+                            seedData = JSON.parse(window.localStorage.seedData);
+                        }
+
+                        for(var i=0; i<seedData.length; i++)
+                        {
+                            var item = seedData[i];
+                            if(item.travellerKey == travelInfo.travellerKey)
+                            {
+                                var  arrpapers = new Array();
+                                for(var j=0; j<travelInfo.papers.length; j++)
+                                {
+                                    var itemPaper = travelInfo.papers[j];
+                                    var itemNew = {};
+                                    if (itemPaper.identityType == "NI")
+                                    {
+                                        itemNew.type = "NI";
+                                        itemNew.number = itemPaper.number;
+                                    }
+                                    else if(itemPaper.identityType == "PP")
+                                    {
+                                        itemNew.type = "PP";
+                                        itemNew.number = itemPaper.number;
+                                        itemNew.deadline = itemPaper.deadline;
+                                    }
+                                    else
+                                    {
+                                        itemNew.type = "ID";
+                                        itemNew.number = itemPaper.number;
+                                        itemNew.deadline = itemPaper.deadline;
+                                    }
+                                    arrpapers.push(itemNew);
+                                }
+                                travelInfo.papers = arrpapers;
+                                arrData.push(travelInfo);
+                            }
+                            else
+                            {
+                                arrData.push(item);
+                            }
+                        }
+
+                        if(arrData.length > 0)
+                        {
+                            window.localStorage.seedData = JSON.stringify(arrData);
+                        }
+                        newTravelStatus();
+                    }
+                    else
+                    {
+                        alert(data.responseMetaInfo.reason);
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+    </script>
+
+
+</body>
+
+</html>

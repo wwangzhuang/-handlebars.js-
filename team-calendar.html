@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>团期日历</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function() {
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type = 'text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <!--<div class="common-header">-->
+    <!--<div class="icon-back" onclick="mineInfoBack()">-->
+    <!--<a href="#"></a>-->
+    <!--</div>-->
+    <!--<div class="common-title">-->
+    <!--团期日历-->
+    <!--</div>-->
+    <!--</div>-->
+    <div class="teamCalendar-position">
+        <div class="teamCalendar-wrapper">
+            <table id="calendar" class="myCalendar">
+                <tr class="info">
+                    <th id="preMon">
+                        <span>上月</span>
+                    </th>
+                    <th id="title" colspan="5">
+                        <span id="chooseYear"></span>年
+                        <span id="chooseMonth"></span>月
+                    </th>
+                    <th id="nextMon" class="lastTh">
+                        <span>下月</span>
+                    </th>
+                </tr>
+                <tr id="weekDays" class="week">
+                    <th>日</th>
+                    <th>一</th>
+                    <th>二</th>
+                    <th>三</th>
+                    <th>四</th>
+                    <th>五</th>
+                    <th class="lastTh">六</th>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr class="lastTr">
+                    <td class="lastTd"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <div class="teamCalendar-time">
+            <div>
+                已选择出发日期：<span id="havTime"></span>
+            </div>
+        </div>
+        <div class="teamCalendar-content" id="teamContent">
+        </div>
+    </div>
+    <div class="teamCalendar-bottomBtn" id="team-calendar-class">
+        <a href="#" id="btn_ljyd">
+        立即预定
+    </a>
+    </div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/common-method.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        function mineInfoBack() {
+            window.location.href = "product-detail.html";
+        };
+
+        $(function() {
+            $('html').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            $('body').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+
+        })
+    </script>
+    <script>
+        //此处要传的参数有 产品名称  产品编号   出发地   出发日期  天数  到创建订单页面
+
+        var travelCreateOrder = {};
+
+        var routeDetail = {};
+        routeDetail.customerKey = defaultLoginrespon().apiUserName;
+        routeDetail.routeId = getURLParameter('routeId');
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.GetRouteDetailRequest = routeDetail;
+        var url = travelLink();
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            async: false,
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function(data) {
+                if (data.responseMetaInfo.resultCode == 0) {
+                    travelCreateOrder.saleRouteName = data.GetRouteDetailResponse.saleRouteName;
+
+                    travelCreateOrder.productMeasure = data.GetRouteDetailResponse.productMeasure;
+
+                    travelCreateOrder.routeId = data.GetRouteDetailResponse.routeId;
+
+                    travelCreateOrder.attractionNameCn = data.GetRouteDetailResponse.sourcePlace.attractionNameCn;
+
+                    travelCreateOrder.numOfDay = data.GetRouteDetailResponse.numOfDay;
+
+                    if (window.localStorage.nowDate) {
+                        travelCreateOrder.selDay = window.localStorage.nowDate;
+                    } else {
+                        travelCreateOrder.selDay = data.GetRouteDetailResponse.groups[0].departureDate;
+                    }
+
+                    //判断当前选中的团是否存在座位
+                    if (window.localStorage.activityPageActivity == 'true') {
+                        for (var i = 0; i < data.GetRouteDetailResponse.groups.length; i++) {
+                            var activitySelDate = data.GetRouteDetailResponse.groups[i].departureDate;
+                            if (activitySelDate == travelCreateOrder.selDay) {
+                                var countSign = parseInt(data.GetRouteDetailResponse.groups[i].numberOfPlanSignUp) - parseInt(data.GetRouteDetailResponse.groups[i].numberOfHasSignUp);
+                                if (countSign > 0) {
+                                    $('#btn_ljyd').html('开始预定');
+                                    $('#team-calendar-class').css("background-color", "#FB6768");
+                                } else {
+                                    $('#team-calendar-class').css("background-color", "#C9C9C9");
+                                    $('#btn_ljyd').html('售罄');
+                                }
+                                break;
+                            }
+                        }
+                    } else {
+                        $('#btn_ljyd').html('开始预定');
+                        $('#team-calendar-class').css("background-color", "#FB6768");
+                    }
+
+
+                    var localStorage = window.localStorage;
+                    var nowDateYear;
+                    var nowDateMonth;
+                    var dates = data.GetRouteDetailResponse.groups;
+                    var nowDate = localStorage.nowDate;
+                    if (nowDate == '') {
+                        nowDate = dates[0].departureDate;
+                    };
+                    var firstDate = dates[0].departureDate;
+                    var hash = {};
+                    var datesDiff = dates.reduce(function(item, next) {
+                        hash[next.departureDate] ? '' : hash[next.departureDate] =
+                            true && item.push(
+                                next);
+                        return item;
+                    }, []); //去重后的对象数组
+                    var arrDepartureDate = []; //去重后的时间数组
+                    for (var i = 0; i < dates.length; i++) {
+                        arrDepartureDate.push(dates[i].departureDate);
+                    };
+                    var newDateObj = [];
+
+
+                    var calendar = {
+                        init: function(form) {
+                            var firstDateYear = firstDate.substring(0, 4);
+                            var firstDateMonth = firstDate.substring(5, 7);
+                            var leftDate = new Date(Number(firstDateYear) - 1, firstDateMonth, 1);
+                            var rightDate = new Date(Number(firstDateYear) + 1, firstDateMonth, 1);
+
+
+
+                            nowDateYear = nowDate.substring(0, 4);
+                            nowDateMonth = nowDate.substring(5, 7);
+                            this.table = form.getElementsByTagName('td');
+                            this.createCalendar(form, new Date(nowDateYear, nowDateMonth - 1, 1));
+                            $('#preMon').on('click', function() {
+                                calendar.createCalendar(form, new Date(calendar.year,
+                                    calendar.month -
+                                    1, 1));
+                                var midDate = new Date(calendar.year, calendar.month + 1, 1);
+                                if (midDate.getTime() < leftDate.getTime() || midDate.getTime() >
+                                    rightDate.getTime()) {
+                                    $('#preMon').unbind('click');
+                                }
+                            })
+                            $('#nextMon').on('click', function() {
+                                calendar.createCalendar(form, new Date(calendar.year,
+                                    calendar.month +
+                                    1, 1));
+                                var midDate = new Date(calendar.year, calendar.month + 1, 1);
+                                if (midDate.getTime() < leftDate.getTime() || midDate.getTime() >
+                                    rightDate.getTime()) {
+                                    $('#nextMon').unbind('click');
+                                }
+                            })
+
+                        },
+
+                        //返回该月第一天是周几
+                        getFirstDay: function(year, month) {
+                            var firstDay = new Date(year, month, 1);
+                            return firstDay.getDay();
+                        },
+
+                        //返回该月总天数
+                        getMonthLen: function(year, month) {
+                            return new Date(year, month + 1, 0).getDate();
+                        },
+
+                        //生成表格
+                        createCalendar: function(form, date) {
+                            newDateObj = [];
+                            newDateObjs = [];
+                            for (var i = 0; i < dates.length; i++) {
+                                if (dates[i].departureDate == nowDate) {
+                                    newDateObj.push(dates[i]);
+                                }
+                            }
+                            for (var i = 0; i < datesDiff.length; i++) {
+                                if (datesDiff[i].departureDate == nowDate) {
+                                    newDateObjs.push(datesDiff[i]);
+                                }
+                            }
+                            calendar.year = date.getFullYear();
+                            calendar.month = date.getMonth();
+                            calendar.monDate = date.getDate();
+                            document.getElementById('chooseYear').innerHTML = calendar.year;
+                            document.getElementById('chooseMonth').innerHTML = calendar.month + 1;
+                            var theMonth = calendar.month + 1;
+                            if (theMonth < 10) {
+                                theMonth = '0' + theMonth;
+                            }
+                            calendar.clearCalendar(form);
+
+                            var monthLen = calendar.getMonthLen(calendar.year, calendar.month);
+                            var firstDay = calendar.getFirstDay(calendar.year, calendar.month);
+                            for (var i = 1; i <= monthLen; i++) {
+                                if (i < 10) {
+                                    ii = '0' + String(i);
+                                } else {
+                                    ii = i;
+                                }
+                                calendar.table[i + firstDay - 1].innerHTML =
+                                    '<div class="dateTimes" data-time="' +
+                                    calendar.year + '-' + theMonth + '-' + ii +
+                                    '"><span class="theDay">' + i +
+                                    '</span><div class="data-wrapper"></div><div>';
+                            };
+                            $('#calendar td').removeClass('today-bg');
+
+
+                            var remainsText = '';
+                            var remainsText2 = '';
+                            var isIronclad = '';
+                            if (dates) {
+                                var remainsTextA = [];
+                                for (var k = 0; k < newDateObj.length; k++) {
+                                    var remainNum = newDateObj[k].numberOfPlanSignUp -
+                                        newDateObj[k].numberOfHasSignUp;
+                                    remainsTextA.push(remainNum);
+                                }
+                                for (var i = 0; i < remainsTextA.length; i++) {
+                                    if (remainsTextA[i] > 6) {
+                                        remainsTextA[i] = '充足';
+                                    } else if (remainsTextA[i] > 0 && remainsTextA[i] <= 6) {
+                                        remainsTextA[i] = '余' + remainsTextA[i];
+                                    } else if (remainsTextA[i] == 0) {
+                                        remainsTextA[i] = '询位';
+                                    } else {
+                                        remainsTextA[i] = '售罄';
+                                    }
+                                }
+                                $('.dateTimes').each(function() {
+                                    var $this = $(this);
+                                    for (var i = 0; i < datesDiff.length; i++) {
+                                        if ($this.data('time') == datesDiff[i].departureDate) {
+                                            $(this).find('.data-wrapper').append(
+                                                '<span class="thePrice">￥' + datesDiff[
+                                                    i].adultDefaultPrice +
+                                                '起</span>'
+                                            );
+                                            // 是否铁定成团
+                                            if (datesDiff[i].processState ===
+                                                'groups_complete') {
+                                                isIronclad = 'is-Ironclad';
+                                                $(this).find('.data-wrapper').append(
+                                                    '<i class="is-tied"></i>'
+                                                )
+                                            } else if (datesDiff[i].isIroncladGroup) {
+                                                isIronclad = 'is-Ironclad';
+                                                $(this).find('.data-wrapper').append(
+                                                    '<i class="is-tied"></i>'
+                                                )
+                                            };
+
+                                            // 是否多团
+                                            if (numOfEleInArr(datesDiff[i].departureDate,
+                                                    arrDepartureDate) > 1) {
+                                                $(this).find('.data-wrapper').append(
+                                                    '<i class="is-duo"></i>'
+                                                )
+                                            }
+
+                                            //余
+                                            var remainNum = datesDiff[i].numberOfPlanSignUp -
+                                                datesDiff[i].numberOfHasSignUp;
+                                            if (remainNum > 6) {
+                                                remainsText = '充足';
+                                                $(this).find('.data-wrapper').append(
+                                                    '<span class="theBalance">充足</span>'
+                                                )
+                                            } else if (remainNum > 0 && remainNum <= 6) {
+                                                remainsText = '余' + remainNum;
+                                                $(this).find('.data-wrapper').append(
+                                                    '<span class="theBalance">余' +
+                                                    remainNum + '</span>'
+                                                )
+                                            } else if (remainNum == 0) {
+                                                remainsText = '询位';
+                                                $(this).find('.data-wrapper').append(
+                                                    '<span class="theBalance">询位</span>'
+                                                )
+                                            } else {
+                                                remainsText = '售罄';
+                                                $(this).find('.data-wrapper').append(
+                                                    '<span class="theBalance">售罄</span>'
+                                                )
+                                            }
+
+                                        } else {
+
+                                        }
+
+                                    };
+
+                                    if ($.inArray($this.data('time'),
+                                            arrDepartureDate) == '-1') {
+                                        $this.css('color', '#ccc');
+                                        $this.closest('td').removeAttr('onclick')
+                                    };
+
+                                    if ($this.data('time') == nowDate) {
+                                        $this.addClass('td-state-focused');
+                                    };
+
+                                });
+                                $('#havTime').text(nowDate);
+                                calendar.clearDiv();
+
+                                console.log(newDateObj)
+                                for (var k = 0; k < newDateObj.length; k++) {
+                                    console.log(newDateObj[k])
+                                    if (newDateObj[k].processState ===
+                                        'groups_complete') {
+                                        isIronclad = 'is-Ironclad';
+                                        $('#teamContent').append(
+                                            '<div class="showSel" data-balancePrice="' +
+                                            newDateObj[
+                                                k].balanceSalePrice + '" data-groupMark="' +
+                                            newDateObj[k].tourGroupMark + '" data-childPrice="' +
+                                            newDateObj[k].childDefaultPrice +
+                                            '" data-adultPrice="' +
+                                            newDateObj[k].adultDefaultPrice +
+                                            '" data-numberOfPlanSignUp="' + newDateObj[k].numberOfPlanSignUp +
+                                            '" data-numberOfHasSignUp="' + newDateObj[k].numberOfHasSignUp +
+                                            '" data-teamgroupId="' +
+                                            newDateObj[k].tourGroupId +
+                                            '" data-time="' +
+                                            nowDate +
+                                            '"><div class="isTied"><i class="' + isIronclad +
+                                            '"></i></div><span class="ad">成人：￥<span class="adultPrice">' +
+                                            newDateObj[k].adultDefaultPrice +
+                                            '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="ch">儿童：￥<span class="childPrice">' +
+                                            newDateObj[k].childDefaultPrice +
+                                            '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="remains">' +
+                                            remainsTextA[k] +
+                                            '</span><i class="isSel"></i></div>'
+                                        );
+                                    } else if (newDateObj[k].isIroncladGroup) {
+                                        isIronclad = 'is-Ironclad';
+                                        $('#teamContent').append(
+                                            '<div class="showSel" data-balancePrice="' +
+                                            newDateObj[
+                                                k].balanceSalePrice + '" data-groupMark="' +
+                                            newDateObj[k].tourGroupMark + '" data-childPrice="' +
+                                            newDateObj[k].childDefaultPrice +
+                                            '" data-adultPrice="' +
+                                            newDateObj[k].adultDefaultPrice +
+                                            '" data-numberOfPlanSignUp="' + newDateObj[k].numberOfPlanSignUp +
+                                            '" data-numberOfHasSignUp="' + newDateObj[k].numberOfHasSignUp +
+                                            '" data-teamgroupId="' +
+                                            newDateObj[k].tourGroupId +
+                                            '" data-time="' +
+                                            nowDate +
+                                            '"><div class="isTied"><i class="' + isIronclad +
+                                            '"></i></div><span class="ad">成人：￥<span class="adultPrice">' +
+                                            newDateObj[k].adultDefaultPrice +
+                                            '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="ch">儿童：￥<span class="childPrice">' +
+                                            newDateObj[k].childDefaultPrice +
+                                            '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="remains">' +
+                                            remainsTextA[k] +
+                                            '</span><i class="isSel"></i></div>'
+                                        );
+                                    } else {
+                                        isIronclad = '';
+                                        $('#teamContent').append(
+                                            '<div class="showSel" data-balancePrice="' +
+                                            newDateObj[
+                                                k].balanceSalePrice + '" data-groupMark="' +
+                                            newDateObj[k].tourGroupMark + '" data-childPrice="' +
+                                            newDateObj[k].childDefaultPrice +
+                                            '" data-adultPrice="' +
+                                            newDateObj[k].adultDefaultPrice +
+                                            '" data-numberOfPlanSignUp="' + newDateObj[k].numberOfPlanSignUp +
+                                            '" data-numberOfHasSignUp="' + newDateObj[k].numberOfHasSignUp +
+                                            '" data-teamgroupId="' +
+                                            newDateObj[k].tourGroupId +
+                                            '" data-time="' +
+                                            nowDate +
+                                            '"><div class="isTied"><i class="' + isIronclad +
+                                            '"></i></div><span class="ad">成人：￥<span class="adultPrice">' +
+                                            newDateObj[k].adultDefaultPrice +
+                                            '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="ch">儿童：￥<span class="childPrice">' +
+                                            newDateObj[k].childDefaultPrice +
+                                            '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="remains">' +
+                                            remainsTextA[k] +
+                                            '</span><i class="isSel"></i></div>'
+                                        );
+                                    };
+
+                                };
+
+                            };
+                            $('.showSel').eq(0).find('.isSel').addClass('active');
+
+                            //突出显示今天
+                            $('#calendar .theDay').each(function() {
+                                if ($(this).text() == new Date().getDate() && Number($(
+                                        '#chooseMonth').text()) ===
+                                    new Date().getMonth() + 1 && Number($('#chooseYear').text()) ===
+                                    new Date().getFullYear()
+                                ) {
+                                    $(this).parent().addClass('today-bg');
+                                }
+                            });
+
+                            //添加点击效果
+                            $('.dateTimes').each(function() {
+                                var $this = $(this);
+                                var clickDate = $this.data('time');
+                                if ($.inArray(clickDate, arrDepartureDate) != '-1') {
+                                    $this.on('click', function() {
+                                        nowDate = clickDate;
+                                        travelCreateOrder.selDay = nowDate;
+
+                                        //判断当前选中的团是否存在座位
+                                        if (window.localStorage.activityPageActivity == 'true') {
+                                            for (var i = 0; i < data.GetRouteDetailResponse.groups.length; i++) {
+                                                var activitySelDate = data.GetRouteDetailResponse.groups[i].departureDate;
+                                                if (activitySelDate == travelCreateOrder.selDay) {
+                                                    var countSign = parseInt(data.GetRouteDetailResponse.groups[i].numberOfPlanSignUp) - parseInt(data.GetRouteDetailResponse.groups[i].numberOfHasSignUp);
+                                                    if (countSign > 0) {
+                                                        $('#btn_ljyd').html('开始预定');
+                                                        $('#team-calendar-class').css("background-color", "#FB6768");
+                                                    } else {
+                                                        $('#team-calendar-class').css("background-color", "#C9C9C9");
+                                                        $('#btn_ljyd').html('售罄');
+                                                    }
+                                                    break;
+                                                }
+                                            }
+                                        } else {
+                                            $('#btn_ljyd').html('开始预定');
+                                            $('#team-calendar-class').css("background-color", "#FB6768");
+                                        }
+
+
+                                        newDateObj = [];
+                                        console.log($(this).find('.is-tied').length >
+                                            0)
+                                        if ($(this).find('.is-tied').length > 0) {
+                                            isIronclad = "is-Ironclad";
+                                        } else {
+                                            isIronclad = ""
+                                        }
+                                        for (var i = 0; i < dates.length; i++) {
+                                            if (dates[i].departureDate == nowDate) {
+                                                newDateObj.push(dates[i]);
+                                            }
+                                        }
+                                        calendar.clearDiv();
+                                        if ($(this).text() !== '') {
+                                            $(this).addClass('td-state-focused');
+                                            $('.dateTimes').not(this).removeClass(
+                                                'td-state-focused');
+                                        }
+                                        $('#havTime').text($(this).data(
+                                            'time'));
+
+                                        var remainsTextA = [];
+                                        for (var k = 0; k < newDateObj.length; k++) {
+                                            var remainNum = newDateObj[k].numberOfPlanSignUp -
+                                                newDateObj[k].numberOfHasSignUp;
+                                            remainsTextA.push(remainNum);
+                                        }
+                                        for (var i = 0; i < remainsTextA.length; i++) {
+                                            if (remainsTextA[i] > 6) {
+                                                remainsTextA[i] = '充足';
+                                            } else if (remainsTextA[i] > 0 &&
+                                                remainsTextA[i] <= 6) {
+                                                remainsTextA[i] = '余' +
+                                                    remainsTextA[i];
+                                            } else if (remainsTextA[i] == 0) {
+                                                remainsTextA[i] = '询位';
+                                            } else {
+                                                remainsTextA[i] = '售罄';
+                                            }
+                                        }
+
+                                        for (var k = 0; k < newDateObj.length; k++) {
+                                            if (newDateObj[k].processState === 'groups_complete') {
+                                                isIronclad = 'is-Ironclad';
+                                                $('#teamContent').append(
+                                                    '<div class="showSel" data-balancePrice="' +
+                                                    newDateObj[k].balanceSalePrice +
+                                                    '" data-groupMark="' +
+                                                    newDateObj[k].tourGroupMark +
+                                                    '" data-childPrice="' +
+                                                    newDateObj[k].childDefaultPrice +
+                                                    '" data-adultPrice="' +
+                                                    newDateObj[k].adultDefaultPrice +
+                                                    '" data-numberOfPlanSignUp="' +
+                                                    newDateObj[k].numberOfPlanSignUp +
+                                                    '" data-numberOfHasSignUp="' +
+                                                    newDateObj[k].numberOfHasSignUp +
+                                                    '" data-teamgroupId="' +
+                                                    newDateObj[k].tourGroupId +
+                                                    '" data-time="' +
+                                                    nowDate +
+                                                    '"><div class="isTied"><i class="' +
+                                                    isIronclad +
+                                                    '"></i></div><span class="ad">成人：￥<span class="adultPrice">' +
+                                                    newDateObj[k].adultDefaultPrice +
+                                                    '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="ch">儿童：￥<span class="childPrice">' +
+                                                    newDateObj[k].childDefaultPrice +
+                                                    '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="remains">' +
+                                                    remainsTextA[k] +
+                                                    '</span><i class="isSel"></i></div>'
+                                                );
+                                            } else if (newDateObj[k].isIroncladGroup) {
+                                                isIronclad = 'is-Ironclad';
+                                                $('#teamContent').append(
+                                                    '<div class="showSel" data-balancePrice="' +
+                                                    newDateObj[k].balanceSalePrice +
+                                                    '" data-groupMark="' +
+                                                    newDateObj[k].tourGroupMark +
+                                                    '" data-childPrice="' +
+                                                    newDateObj[k].childDefaultPrice +
+                                                    '" data-adultPrice="' +
+                                                    newDateObj[k].adultDefaultPrice +
+                                                    '" data-numberOfPlanSignUp="' +
+                                                    newDateObj[k].numberOfPlanSignUp +
+                                                    '" data-numberOfHasSignUp="' +
+                                                    newDateObj[k].numberOfHasSignUp +
+                                                    '" data-teamgroupId="' +
+                                                    newDateObj[k].tourGroupId +
+                                                    '" data-time="' +
+                                                    nowDate +
+                                                    '"><div class="isTied"><i class="' +
+                                                    isIronclad +
+                                                    '"></i></div><span class="ad">成人：￥<span class="adultPrice">' +
+                                                    newDateObj[k].adultDefaultPrice +
+                                                    '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="ch">儿童：￥<span class="childPrice">' +
+                                                    newDateObj[k].childDefaultPrice +
+                                                    '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="remains">' +
+                                                    remainsTextA[k] +
+                                                    '</span><i class="isSel"></i></div>'
+                                                );
+                                            } else {
+                                                isIronclad = '';
+                                                $('#teamContent').append(
+                                                    '<div class="showSel" data-balancePrice="' +
+                                                    newDateObj[k].balanceSalePrice +
+                                                    '" data-groupMark="' +
+                                                    newDateObj[k].tourGroupMark +
+                                                    '" data-childPrice="' +
+                                                    newDateObj[k].childDefaultPrice +
+                                                    '" data-adultPrice="' +
+                                                    newDateObj[k].adultDefaultPrice +
+                                                    '" data-numberOfPlanSignUp="' +
+                                                    newDateObj[k].numberOfPlanSignUp +
+                                                    '" data-numberOfHasSignUp="' +
+                                                    newDateObj[k].numberOfHasSignUp +
+                                                    '" data-teamgroupId="' +
+                                                    newDateObj[k].tourGroupId +
+                                                    '" data-time="' +
+                                                    nowDate +
+                                                    '"><div class="isTied"><i class="' +
+                                                    isIronclad +
+                                                    '"></i></div><span class="ad">成人：￥<span class="adultPrice">' +
+                                                    newDateObj[k].adultDefaultPrice +
+                                                    '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="ch">儿童：￥<span class="childPrice">' +
+                                                    newDateObj[k].childDefaultPrice +
+                                                    '</span>/' + teamUnitConvert(data.GetRouteDetailResponse.productMeasure) + '</span><span class="remains">' +
+                                                    remainsTextA[k] +
+                                                    '</span><i class="isSel"></i></div>'
+                                                );
+                                            }
+
+                                        }
+                                        $('.showSel').eq(0).find('.isSel').addClass(
+                                            'active');
+                                    })
+                                }
+                            });
+
+
+                            $(document).on('click', '.isSel', function() {
+                                $(this).addClass('active');
+                                $('.isSel').not(this).removeClass('active');
+
+                            })
+
+
+                        },
+
+                        //清除表格
+                        clearCalendar: function(form) {
+                            this.table = form.getElementsByTagName('td');
+                            for (var i = 0; i < this.table.length; i++) {
+                                this.table[i].innerHTML = '';
+                                this.table[i].id = '';
+                                $(this.table[i]).unbind('click');
+                            }
+                        },
+
+                        clearDiv: function() {
+                            $('#teamContent').html('');
+                        }
+
+                    }
+                    var calendars = document.getElementById('calendar');
+                    calendar.init(calendars);
+
+                    $("#btn_ljyd").click(function() {
+                        var strBtnText = $("#btn_ljyd").text();
+                        if (strBtnText == "售罄") {
+                            return;
+                        }
+                        var loginStatus = window.localStorage.getItem("loginSuccess");
+                        if (!loginStatus) {
+                            if (window.localStorage.activityPageActivity == 'true') {
+                                window.localStorage.loginFromStatus = 2;
+                            } else {
+                                window.localStorage.loginFromStatus = 1;
+                            }
+                            window.location.href = "login.html";
+                        } else {
+                            /*清空常旅客缓存*/
+                            window.localStorage.removeItem("seedData");
+                            //团期id
+                            travelCreateOrder.routeId = $('.isSel.active').closest('.showSel').data(
+                                'teamgroupid');
+                            window.localStorage.travelCreateParam = JSON.stringify(
+                                travelCreateOrder);
+
+                            /*报价信息*/
+
+                            localStorage.seedBalancePrice = $('.isSel.active').closest('.showSel').data(
+                                'balanceprice');
+                            localStorage.seedChildPrice = $('.isSel.active').closest('.showSel').data(
+                                'childprice');
+                            localStorage.seedGroupMark = $('.isSel.active').closest('.showSel').data(
+                                'groupmark');
+                            localStorage.seedAdultPrice = $('.isSel.active').closest('.showSel').data(
+                                'adultprice');
+                            localStorage.seedNumberOfPlanSignUp = $('.isSel.active').closest(
+                                '.showSel').data('numberofplansignup');
+                            localStorage.seedNumberOfHasSignUp = $('.isSel.active').closest(
+                                '.showSel').data('numberofhassignup');
+
+                            //清楚历史数据
+                            window.localStorage.removeItem("createTraverName");
+                            window.localStorage.removeItem("createTraverPhone");
+                            window.localStorage.removeItem("createTraverRemark");
+                            window.localStorage.removeItem("arrTravelBalance");
+                            window.location.href = "createorder.html";
+                            window.sessionStorage.agreeCheck = 0;
+                        }
+                    });
+                }
+            },
+            error: function(data) {}
+        });
+    </script>
+</body>
+
+</html>

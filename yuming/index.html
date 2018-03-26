@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加载中,请稍后</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/mui.picker.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+</head>
+<body>
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/handlebars-v4.0.5.js"></script>
+<script src="js/mui.min.js"></script>
+<script src="js/swiper-3.4.2.jquery.min.js"></script>
+<script src="js/jq-plugins.js"></script>
+<script src="projectJs/jQuery.md5.js"></script>
+<script src="projectJs/normal.js"></script>
+<script src="http://passport.cnblogs.com/scripts/jsencrypt.min.js"></script>
+<script>
+
+    var openIdCode = getQueryValueString("code");
+    window.localStorage.wechatCode = openIdCode;
+
+    //hjly_1  hjly:代表项目  1代表环境(正式还是op3或者beta)
+    var strState =  getQueryValueString("state")
+
+    var arrState = strState.split("_");
+    var project = arrState[0];
+    var environment = arrState[1];
+
+    var orderId = "";
+    if(arrState.length > 2)
+    {
+        orderId = arrState[2];
+    }
+
+    var isLogin = "";
+    if(arrState.length > 3)
+    {
+        isLogin = arrState[3]
+    }
+    if(project == "hjly")
+    {
+        if(environment == 1)//op3
+        {
+            window.location.href = "http://cruisepch.op3.tdxinfo.com/tops-front-purchaser-cruise/h5Cruise/onlinePay?orderId=" + orderId + "&code="+ openIdCode +"&isLogin=" + isLogin;
+
+//              window.location.href = "http://10.3.21.132:9876/proto-b2b/static/royalCruises/online-pay.html?orderId=" + orderId + "&code="+ openIdCode + "&isLogin=" + isLogin;
+        }
+        else if(environment == 2)//beta
+        {
+            window.location.href = "http://ship.beta.travelzen.com/tops-front-purchaser-cruise/h5Cruise/onlinePay?orderId=" + orderId + "&code="+ openIdCode +"&isLogin=" + isLogin;
+        }
+        else
+        {
+            window.location.href = "http://ship.travelzen.com/tops-front-purchaser-cruise/h5Cruise/onlinePay?orderId=" + orderId + "&code="+ openIdCode + "&isLogin=" + isLogin;;
+        }
+    }
+    else if(project == "dydp")
+    {
+        if (environment == 1)
+        {
+            window.location.href = "https://wechat.travelzen.com/order-pay.html?code=" + openIdCode;
+        }
+        else
+        {
+            window.location.href = "http://open.weixin.travelzen.com/order-pay.html?code=" + openIdCode;
+        }
+    }
+
+    function getQueryValueString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = location.search.substr(1).match(reg);
+        if (r != null)
+            return unescape(decodeURI(r[2]));
+        return null;
+    }
+</script>
+</body>
+</html>

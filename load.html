@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加载中,请稍后</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/mui.picker.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+</head>
+<body>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="http://passport.cnblogs.com/scripts/jsencrypt.min.js"></script>
+<script>
+
+    var wechatPayUrl = {};
+
+    var openIdCode = getQueryValueString("code");
+    //hjly_1  hjly:代表项目  1代表环境(正式还是op3或者beta)
+    var arrState =  getQueryValueString("state").slice("_");
+
+    var project = arrState[0];
+    var environment = arrState[1];
+
+    if(project == "hjly")
+    {
+
+    }
+    else if(project == "dydp")
+    {
+
+    }
+    getOpenIdFirstFromJava();
+
+    function getQueryValueString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = location.search.substr(1).match(reg);
+        if (r != null)
+            return unescape(decodeURI(r[2]));
+        return null;
+    }
+
+
+    function getOpenIdFirstFromJava() {
+
+        var url = "http://192.168.161.137:8480/webChat/dispatcher";
+        var data = {};
+        data.code = openIdCode;
+//        data.code = "0116HO4M1whzu41jNH6M1beC4M16HO4y"
+        data.url = "https://api.weixin.qq.com/sns/oauth2/access_token";
+
+        $.ajax({
+            type: 'post',
+            url: url,
+            data: data,
+            success: function (data) {
+                if (JSON.parse(data).hasOwnProperty("openid"))
+                {
+                    window.localStorage.wechatOpenId = JSON.parse(data).openid;
+
+                    if(project == "dydp")
+                    {
+                        wechatPayLink();
+                    }
+                    else if(project == "hjyl")
+                    {
+                        wechatPayHjylLink();
+                    }
+                }
+                else
+                {
+
+                }
+            }
+        });
+    }
+
+    //皇家游轮
+    function wechatPayHjylLink() {
+
+        var routeDetail = {};
+        routeDetail.orderPayType = "ALL";
+        routeDetail.orderId = "YL180119002375";
+        routeDetail.client = "isMobile";
+        routeDetail.tradeType = "MWEB";
+        routeDetail.sceneInfoType = "Wap";
+        routeDetail.sceneInfoWapUrl  = "https://wechat.travelzen.com";
+        routeDetail.sceneInfoWapName = "皇家游轮";
+        routeDetail.wxBody = "天地行微信H5支付-皇家游轮";
+        routeDetail.payType = "OFFICIAL_ACCOUNTS";
+        routeDetail.openId = window.localStorage.wechatOpenId;
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.CruisePayRequest = routeDetail;
+
+        var url = "http://192.168.161.137:8480/service/flight/cruise";
+
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function (data) {
+                if (data.responseMetaInfo.resultCode == 0)
+                {
+                    if (data.PayAllOrderResponse.status == "FAILED")
+                    {
+                        alert(data.PayAllOrderResponse.message);
+                    }
+                    else
+                    {
+                        var wechatURL = data.PayAllOrderResponse.payUrl;
+                        var appid = wechatURL.substring(wechatURL.indexOf("appId=") + 6,wechatURL.indexOf("&nonceStr"));
+                        wechatPayUrl.appId = appid;
+                        var timeStamp = wechatURL.substring(wechatURL.indexOf("timeStamp=") + 10,wechatURL.length);
+                        wechatPayUrl.timeStamp = timeStamp;
+                        var noncestr = wechatURL.substring(wechatURL.indexOf("nonceStr=") + 9,wechatURL.indexOf("&package="));
+                        wechatPayUrl.noncestr = noncestr;
+                        var package = wechatURL.substring(wechatURL.indexOf("prepay_id=") ,wechatURL.indexOf("&paySign="));
+                        wechatPayUrl.package = package;
+                        var paySign = wechatURL.substring(wechatURL.indexOf("paySign=")+8 ,wechatURL.indexOf("&signType="));
+                        wechatPayUrl.paySign = paySign;
+                        onBridgeReady();
+                    }
+                }
+                else
+                {
+                    alert("failed");
+                }
+            },
+        });
+    }
+
+    //旅游店铺
+    function wechatPayLink() {
+        var routeDetail = {};
+        routeDetail.curCustomerKey = defaultLoginrespon().apiUserName;
+        routeDetail.orderId = window.localStorage.travelorderID;
+        routeDetail.payType = "OFFICIAL_ACCOUNTS";
+        routeDetail.openId = window.localStorage.wechatOpenId;
+
+
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestDataHtml();
+        dataRequest.PayAllOrderRequest = routeDetail;
+
+        var url = normalInfoLink();
+        url = url +  "/flight/travel";
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function (data) {
+                if (data.responseMetaInfo.resultCode == 0)
+                {
+                    if (data.PayAllOrderResponse.status == "FAILED")
+                    {
+                        alert(data.PayAllOrderResponse.message);
+                    }
+                    else
+                    {
+                        var wechatURL = data.PayAllOrderResponse.payUrl;
+                        var appid = wechatURL.substring(wechatURL.indexOf("appId=") + 6,wechatURL.indexOf("&nonceStr"));
+                        wechatPayUrl.appId = appid;
+                        var timeStamp = wechatURL.substring(wechatURL.indexOf("timeStamp=") + 10,wechatURL.length);
+                        wechatPayUrl.timeStamp = timeStamp;
+                        var noncestr = wechatURL.substring(wechatURL.indexOf("nonceStr=") + 9,wechatURL.indexOf("&package="));
+                        wechatPayUrl.noncestr = noncestr;
+                        var package = wechatURL.substring(wechatURL.indexOf("prepay_id=") ,wechatURL.indexOf("&paySign="));
+                        wechatPayUrl.package = package;
+                        var paySign = wechatURL.substring(wechatURL.indexOf("paySign=")+8 ,wechatURL.indexOf("&signType="));
+                        wechatPayUrl.paySign = paySign;
+                        onBridgeReady();
+                    }
+                }
+                else
+                {
+                    alert("failed");
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+
+    function onBridgeReady(){
+        WeixinJSBridge.invoke(
+            'getBrandWCPayRequest', {
+                "appId":wechatPayUrl.appId,    //公众号名称，由商户传入
+                "timeStamp":wechatPayUrl.timeStamp,         //时间戳，自1970年以来的秒数
+                "nonceStr":wechatPayUrl.noncestr, //随机串
+                "package":wechatPayUrl.package,
+                "signType":"MD5",         //微信签名方式：
+                "paySign":wechatPayUrl.paySign //微信签名
+            },
+            function(res){
+                if(res.err_msg == "get_brand_wcpay_request:ok" )  // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+                {
+                    alert("支付成功");
+
+                    if(project == "dydp")
+                    {
+                        window.location.href = "travel-order.html";
+                    }
+                    else if(project == "hjyl")
+                    {
+                        window.localStorage.href = "my.html"
+                    }
+                }
+                else
+                {
+                    if(res.err_msg == "get_brand_wcpay_request:cancel")
+                    {
+                        alert("支付取消");
+                    }
+                    else
+                    {
+                        alert("支付失败");
+                    }
+                }
+            }
+        );
+    }
+
+</script>
+</body>
+</html>

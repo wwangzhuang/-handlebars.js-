@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://a.alipayobjects.com/g/h5-lib/alipayjsapi/3.0.6/alipayjsapi.min.js" type="text/javascript"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/common-method.js"></script>
+</head>
+<body>
+    <h1 onclick="alipay()">支付宝支付</h1>
+    <h1 onclick="wechatpay()">微信支付</h1>
+</body>
+<script>
+
+        var wechatPayUrl = {};
+
+        var wechatPayRespon = {};
+
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        var url = "http://192.168.161.137:8480/webChat/RequestSignature";
+        url = url + "?url=" +  encodeURIComponent(window.location.href.split('#')[0]);//window.location.href.replace(encodeURIComponent(window.location.href), '');
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function(data) {
+
+                if (data.responseMetaInfo.resultCode == 0) {
+                    wechatPayRespon = data.WebChatResponse;
+                    wx.config({
+                        debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                        appId: wechatPayRespon.appId, // 必填，公众号的唯一标识
+                        timestamp: wechatPayRespon.timestamp, // 必填，生成签名的时间戳
+                        nonceStr: wechatPayRespon.noncestr, // 必填，生成签名的随机串
+                        signature: wechatPayRespon.signature,// 必填，签名，见附录1
+                        jsApiList: ['chooseWXPay',
+                        ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                    });
+
+                    wx.ready(function () {
+                        wx.checkJsApi({
+                            jsApiList: [
+                                'chooseWXPay',
+                            ]
+                        });
+
+                        wx.error(function (res) {
+                            alert('wx.error: '+JSON.stringify(res));
+                        });
+                    });
+                }
+                else {
+
+                }
+            },
+            error: function(data) {
+
+            }
+    });
+
+
+    String.prototype.replaceAll = function(s1,s2){
+        return this.replace(new RegExp(s1,"gm"),s2);
+    }
+
+    function alipayOrder(){
+        var routeDetail = {};
+        routeDetail.deliveryId = "DOI20171218170006201";
+        routeDetail.payPassword = "";
+        routeDetail.payType = "ALIPAY";
+        routeDetail.operator = "5902d4cde4b0c9c8cf7c8eb2";
+        routeDetail.externalMemo = "支付宝web";
+        routeDetail.deliveryOrderNo = "1712181700069201";
+        routeDetail.showUrl = "www.baidu.com";
+        routeDetail.returnUrl = "https://wechat.travelzen.com";
+        routeDetail.alipayService = "alipay.wap.create.direct.pay.by.user";
+
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.AppDeliveryPayOrderRequest = routeDetail;
+
+        var url = "http://192.168.161.137:8480/service/flight/delivery";
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function (data) {
+                if (data.responseMetaInfo.resultCode == 0)
+                {
+                    var locationUrl = "https://mapi.alipay.com/gateway.do?"+data.AppDeliveryPayOrderResponse.payUrl;
+                    var urlAaa = locationUrl.replaceAll("\"","");
+                    window.location.href = urlAaa;
+                }
+                else
+                {
+
+                }
+            },
+            error: function (data) {
+            }
+        });
+    }
+
+    function alipay(){
+        alipayOrder();
+    }
+
+//    function wechatpay(){
+//            var routeDetail = {};
+//            routeDetail.curCustomerKey = defaultLoginrespon().apiUserName;
+//            routeDetail.orderId = "1712181415160001";
+//            routeDetail.payType = "OFFICIAL_ACCOUNTS";
+//            routeDetail.openId = "ova_9t-MTBlaCbedi5VKmafHemG4";
+//
+//            var dataRequest = {};
+//            dataRequest.requestMetaInfo = requestDataHtml();
+//            dataRequest.PayAllOrderRequest = routeDetail;
+//
+//            var url = normalInfoLink();
+//            url = url +  "/flight/travel";
+//            $.ajax({
+//                url: url,
+//                dataType: 'json',
+//                data: JSON.stringify(dataRequest),
+//                type: 'post',
+//                contentType: "application/json;utf-8",
+//                success: function (data) {
+//                    if (data.responseMetaInfo.resultCode == 0)
+//                    {
+//                        if (data.PayAllOrderResponse.status == "FAILED")
+//                        {
+//                            alert(data.PayAllOrderResponse.message);
+//                        }
+//                        else
+//                        {
+//                            var wechatURL = data.PayAllOrderResponse.payUrl;
+//                            var appid = wechatURL.substring(wechatURL.indexOf("appId=") + 6,wechatURL.indexOf("&nonceStr"));
+//                            wechatPayUrl.appId = appid;
+//                            var timeStamp = wechatURL.substring(wechatURL.indexOf("timeStamp=") + 10,wechatURL.length);
+//                            wechatPayUrl.timeStamp = timeStamp;
+//                            var noncestr = wechatURL.substring(wechatURL.indexOf("nonceStr=") + 9,wechatURL.indexOf("&package="));
+//                            wechatPayUrl.noncestr = noncestr;
+//                            var package = wechatURL.substring(wechatURL.indexOf("prepay_id=") ,wechatURL.indexOf("&paySign="));
+//                            wechatPayUrl.package = package;
+//                            var paySign = wechatURL.substring(wechatURL.indexOf("paySign=")+8 ,wechatURL.indexOf("&signType="));
+//                            wechatPayUrl.paySign = paySign;
+//
+//                            wx.chooseWXPay({
+//                                timestamp:wechatPayUrl.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+//                                nonceStr: wechatPayUrl.noncestr, // 支付签名随机串，不长于 32 位
+//                                package: wechatPayUrl.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+//                                signType: "MD5",  // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+//                                paySign: wechatPayUrl.paySign, // 支付签名
+//                                success: function (res) {
+//                                    alert("1234" + JSON.stringify(res));
+//                                }
+//                            });
+//                        }
+//                    }
+//                    else
+//                    {
+//                        alert("failed");
+//                    }
+//                },
+//            });
+//        }
+
+        function wechatpay(){
+
+            var routeDetail = {};
+            routeDetail.deliveryId = "DOI20171229164715203";
+            routeDetail.payPassword = "";
+            routeDetail.payType = "WECHATPAY";
+            routeDetail.operator = "5902d4cde4b0c9c8cf7c8eb2";
+            routeDetail.externalMemo = "手机微信web";
+            routeDetail.deliveryOrderNo = "1712291647159203";
+            routeDetail.tradeType = "MWEB";
+            routeDetail.sceneInfoType = "Wap";
+            routeDetail.sceneInfoWapUrl  = "https://wechat.travelzen.com";
+            routeDetail.sceneInfoWapName = "皇家游轮";
+
+//            var  sceneInfo =  {};
+//            var  info = {};
+//            info.type = "Wap";
+//            info.wap_url = window.location.href;
+//            info.wap_name = "皇家游轮";
+//            sceneInfo.h5_info = info;
+//
+//            var strSceneInfo = JSON.stringify(sceneInfo);
+//            strSceneInfo = strSceneInfo.replaceAll("{","<");
+//            strSceneInfo = strSceneInfo.replaceAll("}",">");
+////            var urlAaa =  JSON.stringify(sceneInfo).replaceAll("{","<");
+//            routeDetail.sceneInfo = strSceneInfo;
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppDeliveryPayOrderRequest = routeDetail;
+
+            var url = "http://10.3.21.228:8080/tops-openapi-for-customers/service/flight/delivery";
+            //var url="http://192.168.161.137:8480/service/flight/delivery"
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+
+                    if (data.responseMetaInfo.resultCode == 0)
+                    {
+                        // var locationUrl = "https://wx.tenpay.com/cgi-bin/mmpayweb-bin/checkmweb?"+data.AppDeliveryPayOrderResponse.payUrl;
+                        // var urlAaa = locationUrl.replaceAll("\"","");
+                        // window.location.href = locationUrl;
+                        window.location.href = data.AppDeliveryPayOrderResponse.payUrl;
+                    }
+                    else
+                    {
+                        console.log(data)
+                        //alert(data)
+                        //console.log(data.responseMetaInfo.resultCode)
+                    }
+                },
+                error: function (data) {
+
+                }
+            });
+        }
+</script>
+</html>

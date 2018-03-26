@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>活动专区列表</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+        <script>
+            document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+        </script>
+        <link rel="stylesheet" href="css/mui.min.css">
+        <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+        <link rel="stylesheet" href="css/common.css">
+        <link rel="stylesheet" href="css/details.css">
+        <link rel="stylesheet" href="css/pullToRefresh.css" />
+        <style>
+            .searchList-nav {
+                display: table;
+                width: 100%;
+                border-bottom: 1px solid #f2f2f2;
+            }
+            .searchList-nav span {
+                display: table-cell;
+                height: .8rem;
+                line-height: .8rem;
+                text-align: center;
+                color: #999;
+                font-size: .3rem;
+            }
+            .searchList-nav span.active {
+                color: #fe6664;
+                border-bottom: 2px solid #fe6664;
+            }
+            .searchList-main {
+                position: absolute;
+                top: 1.64rem;
+                left: 0;
+                right: 0;
+                bottom: 1.08rem;
+            }
+            .searchList-main .product-box {
+                margin: .2rem;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="common-header">
+            <div class="icon-back">
+                <a href="#" onclick="mineInfoBack()"></a>
+            </div>
+            <div class="common-title" id="activityList-class">活动专区</div>
+        </div>
+        <div>
+            <div id="div-activityList"></div>
+        </div>
+        <!--<div class="searchList-nav" id="temp-searchNav">
+            <span class="nav-item active">
+                <i class="commonListIcon grayTravelIcon activeIcon"></i>
+                <em>旅游</em>
+            </span>
+            <span class="nav-item">
+                <i class="commonListIcon grayShipIcon"></i>
+                <em>邮轮</em>
+            </span>
+            <span class="nav-item">
+                <i class="commonListIcon grayVisaIcon"></i>
+                <em>签证</em>
+            </span>
+            <span class="nav-item">
+                <i class="commonListIcon grayHotelIcon"></i>
+                <em>酒店</em>
+            </span>
+        </div>-->
+        <script id="template-activityList" type="text/x-handlebars-template">
+            <div class="margin20">
+                <ul id="temp-searchList">
+                    {{#each SearchProductByKeyResponse.products.[0].activitys}}
+                    <li class="product-box">
+                        <a href="activity-detail.html?routeId={{productKey}}&beginDate={{beginDate}}&endDate={{endDate}}&minTitle={{minTitle}}" class="proList-link">
+                            <div class="pic-box">
+                                {{#sellCountNone numberOfRemain}}<div class="sell-none"></div>{{/sellCountNone}}
+                                <img src="{{url}}" alt="">
+                                {{#activityLabelShow label1 label2}}
+                                <div class="tagType tagType01 bgred">
+                                    {{#activitysubLabelShow label1}}
+                                    <span class="imgFonts">{{label1}}</span>
+                                    {{/activitysubLabelShow}}
+
+                                    {{#activityAllLabelShow label1 label2}}
+                                    丨
+                                    {{/activityAllLabelShow}}
+
+                                    {{#activitysubLabelShow label2}}
+                                    <span class="imgFonts">{{label2}}</span>
+                                    {{/activitysubLabelShow}}
+                                </div>
+                                {{/activityLabelShow}}
+                                <div class="list-timeout">{{activityText status}}<span class="timeSpan"></span></div>
+                                <div class="sellOut displayNone">
+                                    <span class="sellOutImg"></span>
+                                </div>
+                            </div>
+                            <div class="product-details">
+                                <p class="titleFonts"><i class="commonClassifyIcon xianIcon"><img src="{{activityStatus status}}" alt=""></i>{{productName}}</p>
+                                <div class="clearfix">
+                                    <div class="priceLeft">
+                                        <span class="redFonts">￥<span class="number">{{promotionPrice}}</span></span>
+                                    </div>
+                                    <div class="residueRight color666">
+                                        {{#activitySignShow status}}
+                                        <span>
+                                            <em class="blueFonts">剩余</em>
+                                            <em class="redFonts">{{numberOfRemain}}</em>
+                                            <span>份</span>
+                                        </span>
+                                        {{/activitySignShow}}
+                                        <div class="czys-title-buy"><img src="{{activityModelImgStatus status}}" alt="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </script>
+        
+        <script src="js/jquery-3.1.1.min.js"></script>
+        <script src="js/handlebars-v4.0.5.js"></script>
+        <!--<script src="js/mui.min.js"></script>-->
+        <script src="js/swiper-3.4.2.jquery.min.js"></script>
+        <script src="js/jq-plugins.js"></script>
+        <script src="projectJs/jQuery.md5.js"></script>
+        <script src="projectJs/normal.js"></script>
+        <script src="js/iscroll.js"></script>
+        <script src="js/pullToRefresh.js"></script>
+        <script src="js/common-method.js"></script>
+    
+        <script>
+            var activityData = {};
+            var iCountParam = [];
+            for(var i=0; i<10000;i++)
+            {
+                iCountParam[i] = i;
+            }
+
+
+            function mineInfoBack() {
+                var str = window.localStorage.activityListTime;
+                if (str == 2) {
+                    window.location.href = "activity.html";
+                }
+            }
+
+            function travellerProductCategoryRequest(){
+                var routeDetail = {};
+                routeDetail.searchWord = getURLParameter('productKey');
+                var dataRequest = {};
+                dataRequest.requestMetaInfo = requestData();
+                dataRequest.SearchProductByKeyRequest = routeDetail;
+                var url = activityLink();
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    data: JSON.stringify(dataRequest),
+                    type: 'post',
+                    contentType: "application/json;utf-8",
+                    success: function (data) {
+                        if(data.responseMetaInfo.resultCode == 0)
+                        {
+                            $("#activityList-class").html(getURLParameter('productTitle'));
+                            activityData = data;
+                            for(var i=0;i<data.SearchProductByKeyResponse.products[0].activitys.length; i++)
+                            {
+                                data.SearchProductByKeyResponse.products[0].activitys[i].minTitle = getURLParameter('minTitle');
+                            }
+
+                            var myTemplate = Handlebars.compile($("#template-activityList").html());
+                            $('#div-activityList').html(myTemplate(data));
+
+                            for(var i=0; i<activityData.SearchProductByKeyResponse.products[0].activitys.length; i++)
+                            {
+                                var firstTime = activityData.SearchProductByKeyResponse.products[0].activitys[i].beginDate;
+                                var endTime = activityData.SearchProductByKeyResponse.products[0].activitys[i].endDate;
+                                var serverTime = activityData.SearchProductByKeyResponse.openApiServerDate;
+                                timerOutAction((parseInt(firstTime)),(parseInt(endTime)),(parseInt(serverTime)),i)
+                            }
+                        }
+                    },
+                    error: function () {
+
+                    }
+                });
+            }
+
+            function timerOutAction(beginTime,endTime,serverTime,i) {
+
+                var activityStartTime = beginTime;
+                var activityEndTime = endTime;
+                var currServerTime = serverTime;
+
+                var time ;//= starttime - nowtime;
+
+                iCountParam[i] = setInterval(function () {
+
+                    var day = parseInt(time / 1000 / 60 / 60 / 24);
+                    var hour = parseInt(time / 1000 / 60 / 60 % 24);
+                    var minute = parseInt(time / 1000 / 60 % 60);
+                    var seconds = parseInt(time / 1000 % 60);
+                    if (day <= 9) day = '0' + day;
+                    if (hour <= 9) hour = '0' + hour;
+                    if (minute <= 9) minute = '0' + minute;
+                    if (seconds <= 9) seconds = '0' + seconds;
+                    //倒计时-1s
+                    time = time-1000;
+                    //当前时间+1s
+                    currServerTime = currServerTime + 1000;
+
+                    console.log(time);
+                    console.log(i);
+                    if(day == '00' && hour == '00' && minute == '00' && seconds == '00')
+                    {
+                        if(activityStartTime > currServerTime)    //等待开始
+                        {
+                            time = currServerTime - activityStartTime;
+                        }
+                        else
+                        {
+                            if(activityEndTime > currServerTime)   //活动中
+                            {
+                                time = activityEndTime - currServerTime;
+                                activityData.SearchProductByKeyResponse.products[0].activitys[i].status = 'runing'
+                                var myTemplate = Handlebars.compile($("#template-activityList").html());
+                                $('#div-activityList').html(myTemplate(activityData));
+                            }
+                            else//结束
+                            {
+                                console.log("end"+i);
+                                console.log("end"+time);
+                                activityData.SearchProductByKeyResponse.products[0].activitys[i].status = 'end'
+                                var myTemplate = Handlebars.compile($("#template-activityList").html());
+                                $('#div-activityList').html(myTemplate(activityData));
+                                $('.timeSpan').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                                clearInterval(iCountParam[i]);
+                            }
+                        }
+                    }
+                    if(day == '00')
+                    {
+                        $('.timeSpan').eq(i).html("<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                    }
+                    else {
+                        day = parseInt(day);
+                        $('.timeSpan').eq(i).html("<span>" + day + "</span>" + "天" + "<span>" + hour + "</span>" + ":" + "<span>" + minute + "</span>" + ":" + "<span>" + seconds + "</span>");
+                    }
+                }, 1000);
+
+
+                if(activityStartTime > currServerTime)    //等待开始
+                {
+                    time = activityStartTime - currServerTime;
+                }
+                else
+                {
+                    if(activityEndTime > currServerTime)   //活动中
+                    {
+                        time = activityEndTime - currServerTime;
+                    }
+                    else//结束
+                    {
+                        $('.timeSpan').eq(i).html("<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>" + ":" + "<span>" + '00' + "</span>");
+                        clearInterval(iCountParam[i]);
+                    }
+                }
+            }
+
+            function mineInfoBack() {
+                window.location.href = "activity.html";
+            }
+
+            $(function () {
+                //
+                travellerProductCategoryRequest();
+
+                document.addEventListener("visibilitychange", function(){
+//                    window.location.href=window.location.href+"?id="+10000*Math.random();
+                    window.location.reload();
+                    return false;
+                }, false);
+                // 顶部导航点击事件
+//                mui(document).on('tap', '.nav-item', function () {
+//                    $(this).addClass('active');
+//                    $('.nav-item').not(this).removeClass('active');
+//                    $(this).find("i").addClass('activeIcon');
+//                    $(this).siblings("span").find("i").removeClass('activeIcon');
+//                    $('.tabs-container').tabs();
+//                });
+
+
+            })
+        </script>
+    </body>
+
+</html>

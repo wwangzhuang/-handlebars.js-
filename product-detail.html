@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>产品详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <style>
+        .swiper-container {
+            height: 4.2rem;
+        }
+    </style>
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function() {
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type = 'text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            产品详情
+        </div>
+    </div>
+    <div class="proDetail-container" id="temp-content">
+    </div>
+    <div class="proDetail-bottom">
+        <span>
+            立即预定
+        </span>
+    </div>
+
+    <div class="pop-wrapper">
+        <div class="mask-bg"></div>
+        <div class="qjsm">
+            <h5>起价说明</h5>
+            <p class="con">
+                本价格是可选出发日期中，按双人出行共住一间房核算的最低成人单价。产品价格会根据您所选择的出发日期、出行人数、入住酒店房型、航班或交通以及所选附加服务的不同而有所差别。
+            </p>
+            <p class="hav">我知道了</p>
+        </div>
+    </div>
+
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="js/common-method.js"></script>
+    <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+
+    <script id="template-content" type="text/x-handlebars-template">
+        <header>
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    {{#each GetRouteDetailResponse.carouseImages}}
+                    <div class="swiper-slide">
+                        <img src="{{imageUrl}}" alt="">
+                    </div>
+                    {{/each}}
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+            <li class="proId clearfix">
+                <span class="number">
+                    编号 ：{{GetRouteDetailResponse.routeId}}
+                </span>
+                <ul class="types clearfix">
+                    <li>
+                        <img src="{{imgItemStatus GetRouteDetailResponse.routeForm}}" alt="">
+                    </li>
+                    {{#if GetRouteDetailResponse.groups.[0].isIroncladGroup}}
+                    <li>
+                        <img src="images/pro-type2.png" alt="">
+                    </li>
+                    {{/if}}
+                </ul>
+                </div>
+        </header>
+        <div class="mod">
+            <p class="pro-name">
+                {{GetRouteDetailResponse.saleRouteName}}
+            </p>
+            <div class="dia-price">
+                <span class="dpc dp1">{{productItemStatus GetRouteDetailResponse.diamondLevel}}</span>
+                <div class="dpc dp2">
+                    <img src="{{productLevelStatus GetRouteDetailResponse.diamondLevel}}" alt="">
+                </div>
+                {{#priceBalance01 adultAdvicePrice adultDefaultPrice}}<span class="dpc dp3">￥{{adultAdvicePrice}}</span>{{/priceBalance01}}
+                <div class="dpc dp4">
+                    <span class="sp1">￥</span>{{#priceBalance02 adultAdvicePrice adultDefaultPrice}}<span class="sp2">{{adultDefaultPrice}} </span>{{/priceBalance02}}起
+                </div>
+                <i class="dpc dp5" id="showPop"></i>
+            </div>
+            <div class="icon-title">
+                <i class="i-date"></i>出团日期
+            </div>
+            <ul class="date-list clearfix">
+                <li class="lastOne">
+                    <a href="team-calendar.html?routeId={{GetRouteDetailResponse.routeId}}">
+                        <img src="images/icon-right.png" alt="" class="i-right">
+                    </a>
+                </li>
+            </ul>
+            <div class="icon-title">
+                <i class="i-cpjltj"></i>产品经理推荐
+            </div>
+            <div class="commend-content seeMore-content" id="seeMore_content">
+                {{{GetRouteDetailResponse.recommend}}}
+            </div>
+            <div class="toggle-box" id="seeMore_box">
+                <span>查看全部</span><i class="seeMore"></i>
+            </div>
+        </div>
+        <div class="mod">
+            <nav class="center-nav clearfix">
+                <a href="#anchor1" class="active">行程路线</a>
+                <a href="#anchor2" class="hh">费用说明</a>
+                <a href="#anchor3" class="hh">预定须知</a>
+            </nav>
+            <div class="icon-title">
+                <i class="i-xcjj"></i>行程简介
+            </div>
+            <ul class="day-list">
+                {{#each GetRouteDetailResponse.scenicRoutes}}
+                <li class="clearfix">
+                    <div class="day-num">
+                        Day {{indx}}
+                    </div>
+                    <div class="place">
+                        <h5>{{title}}</h5>
+                        <p class="yc"><span>用餐：</span>{{catering.[0]}}{{catering.[1]}}{{catering.[2]}}</p>
+                        <p class="jd"><span>酒店：</span>{{hotelList.[0].hotelName}}</p>
+                    </div>
+                </li>
+                {{/each}}
+            </ul>
+            <div class="toggle-box">
+                <a href="{{GetRouteDetailResponse.ttbRouteSchedule}}">查看图文详情</a>
+            </div>
+        </div>
+        <div class="mod" id="anchor2">
+            <div class="icon-title">
+                <i class="i-fybh"></i>费用包含
+            </div>
+            <div class="charge-notice clearfix">
+                {{{GetRouteDetailResponse.feeDiscription.feeInclude}}}
+            </div>
+            <div class="icon-title">
+                <i class="i-fybbh"></i>费用不包含
+            </div>
+            <div class="charge-notice clearfix">
+                {{{GetRouteDetailResponse.feeDiscription.feeExclude}}}
+            </div>
+            <div class="toggle-box">
+                <a href="{{GetRouteDetailResponse.ttbFeeExplanation}}">查看详细说明</a>
+            </div>
+        </div>
+        <div class="mod" id="anchor3">
+            <a href="{{GetRouteDetailResponse.ttbBookingNotice}}" class="hh clearfix" style="display:block;">
+                <div class="icon-title mb0" style="float:left">
+                    <i class="i-ydxz"></i>预定须知
+                </div>
+                <div class="icon-right" style="float:right"></div>
+            </a>
+
+        </div>
+        {{#if GetRouteDetailResponse.visaInformation}}
+        <div class="mod">
+            <a href="product-detail-pop.html?routeId={{GetRouteDetailResponse.routeId}}" class="hh clearfix" style="display:block;">
+                <div class="icon-title mb0" style="float:left">
+                    <i class="i-qzqz"></i>签证签注
+                </div>
+                <div class="icon-right" style="float:right"></div>
+            </a>
+
+        </div>
+        {{/if}} {{#if GetRouteDetailResponse.backupDescs}}
+        <div class="mod">
+            <a href="product-detail-pop2.html?routeId={{GetRouteDetailResponse.routeId}}" class="hh clearfix" style="display:block;">
+                <div class="icon-title mb0" style="float:left">
+                    <i class="i-qt"></i>其他
+                </div>
+                <div class="icon-right" style="float:right"></div>
+            </a>
+
+        </div>
+        {{/if}}
+    </script>
+
+    <script>
+        var responData = {};
+
+        function wechatPayLink() {
+
+            var wechatPayRespon = {};
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            var url = "http://192.168.161.137:8480/webChat/RequestSignature";
+            if (isOp3 == 0)
+            {
+                url = "https://app.travelzen.com/tops-openapi-for-customers/webChat/RequestSignature";
+            }
+            url = url + "?url=" +  encodeURIComponent(window.location.href.split('#')[0]);
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function(data) {
+
+                    if (data.responseMetaInfo.resultCode == 0) {
+
+                        wechatPayRespon = data.WebChatResponse;
+                        
+                        wx.config({
+                            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                            appId: wechatPayRespon.appId, // 必填，公众号的唯一标识
+                            timestamp: wechatPayRespon.timestamp, // 必填，生成签名的时间戳
+                            nonceStr: wechatPayRespon.noncestr, // 必填，生成签名的随机串
+                            signature: wechatPayRespon.signature,// 必填，签名，见附录1
+                            jsApiList: ['onMenuShareTimeline',
+                                'onMenuShareAppMessage',
+                                'onMenuShareQQ',
+                                'onMenuShareWeibo',
+                                'onMenuShareQZone'
+                            ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                        });
+
+
+                        wx.ready(function () {
+                            wx.checkJsApi({
+                                jsApiList: [
+                                    'onMenuShareTimeline',
+                                    'onMenuShareAppMessage',
+                                    'onMenuShareQQ',
+                                    'onMenuShareWeibo',
+                                    'onMenuShareQZone'
+                                ]
+                            });
+
+                            var imageUrl = "";
+                            if(responData.GetRouteDetailResponse.carouseImages && responData.GetRouteDetailResponse.carouseImages.length > 0)
+                            {
+                                imageUrl = responData.GetRouteDetailResponse.carouseImages[0].imageUrl;
+                            }
+
+                            wx.onMenuShareTimeline({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+                            wx.onMenuShareAppMessage({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+                            wx.onMenuShareQQ({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+
+                            wx.onMenuShareWeibo({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+
+
+                            wx.onMenuShareQZone({
+                                title: responData.GetRouteDetailResponse.saleRouteName,
+                                link: window.location.href,
+                                imgUrl:imageUrl,
+                                trigger: function (res) {
+                                },
+                                success: function (res) {
+                                },
+                                cancel: function (res) {
+                                },
+                                fail: function (res) {
+                                    alert('分享失败');
+                                }
+                            });
+                        });
+
+                        wx.error(function (res) {
+//                            alert('wx.error: '+JSON.stringify(res));
+                        });
+                    }
+                    else {
+
+                    }
+                },
+                error: function(data) {
+
+                }
+            });
+
+
+        }
+
+        function mineInfoBack() {
+            var str = window.localStorage.travelProductStatus;
+            if (str == 0) {
+                window.location.href = "index.html";
+            } else if (str == 1) {
+                window.location.href = "search-list.html";
+            } else {
+                window.location.href = "order-details.html";
+            }
+        }
+
+        var routeDetail = {};
+        routeDetail.customerKey = defaultLoginrespon().apiUserName;
+        routeDetail.routeId = getURLParameter('routeId');
+
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.GetRouteDetailRequest = routeDetail;
+
+        var url = travelLink();
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function(data) {
+                if (data.responseMetaInfo.resultCode == 0) {
+
+                    responData = data;
+
+                    wechatPayLink();
+
+                    window.localStorage.activityPageActivity = "false";
+                    //是否是活动产品
+                    window.localStorage.joinActivity = data.GetRouteDetailResponse.joinActivity;
+
+                    //价格计算
+                    var item = sortPrice(data.GetRouteDetailResponse.groups);
+                    if (item) {
+                        data.adultDefaultPrice = item.adultDefaultPrice;
+                        if(data.GetRouteDetailResponse.joinActivity == true)
+                        {
+                            var oriItem = sortOriPrice(data.GetRouteDetailResponse.groups);
+                            data.adultAdvicePrice = parseInt(oriItem.adultOriginalPrice)/100; //getURLParameter('adultAdvicePrice');
+                        }
+                        else
+                        {
+                            data.adultAdvicePrice = item.adultAdvicePrice; //getURLParameter('adultAdvicePrice');
+                        }
+                    }
+                    console.log(data);
+                    var localStorage = window.localStorage;
+                    var myTemplate = Handlebars.compile($("#template-content").html());
+                    var arrTeamTime = data.GetRouteDetailResponse.groups;
+                    var hash = {};
+
+                    if (arrTeamTime) {
+                        var arrTeamTimeDiff = arrTeamTime.reduce(function(item, next) {
+                            hash[next.departureDate] ? '' : hash[next.departureDate] =
+                                true && item.push(
+                                    next);
+                            return item;
+                        }, []); //去重后的对象数组;
+                    }
+                    console.log(arrTeamTimeDiff)
+                    var arrLen;
+                    if (arrTeamTimeDiff) {
+                        arrLen = arrTeamTimeDiff.length;
+                    }
+
+                    $('#temp-content').html(myTemplate(data));
+
+                    $('.commend-content').find('*').removeAttr('style');
+                    $('.charge-notice').find('*').removeAttr('style');
+
+                    new Swiper('.swiper-container', {
+                        loop: true,
+                        pagination: '.swiper-pagination',
+                    });
+
+                    $('#seeMore_box').on('click', function() {
+                        $('#seeMore_content').toggleClass('seeMore-content');
+                        $(this).find('i').toggleClass('seeLess');
+                        if ($('#seeMore_box').find('i').hasClass('seeLess')) {
+                            $(this).find('span').text('收起');
+                        } else {
+                            $(this).find('span').text('查看全部');
+                        }
+                    });
+
+                    // 产品经理推荐查看全部效果
+                    console.log(arrLen)
+                    if (!arrLen) {
+                        $('.date-list').html('<li>暂无团期</li>')
+                        $('.proDetail-bottom span').text('暂无团期');
+                        $('.dp3').text('');
+                        $('.dp4 .sp2').text('0');
+                    } else if (arrLen < 5) {
+                        for (var i = 0; i < arrLen; i++) {
+                            $('.date-list .lastOne').before(
+                                '<li><a class="date-box"><p class="dd">' +
+                                arrTeamTimeDiff[i].departureDate + '</p><p class="pp">￥' + arrTeamTimeDiff[
+                                    i].adultDefaultPrice + '起</p></a></li>')
+                        }
+                    } else {
+                        for (var i = 0; i < 4; i++) {
+                            $('.date-list .lastOne').before(
+                                '<li><a class="date-box"><p class="dd">' +
+                                arrTeamTimeDiff[i].departureDate + '</p><p class="pp">￥' + arrTeamTimeDiff[
+                                    i].adultDefaultPrice + '起</p></a></li>')
+                        }
+                    }
+
+
+                    $('.date-list>li>a').on('click', function() {
+                        localStorage.nowDate = $(this).find('.dd').text();
+                        localStorage.routeId = data.GetRouteDetailResponse.routeId;
+                        window.location.href = "team-calendar.html?routeId=" + data.GetRouteDetailResponse.routeId;
+                    });
+                    mui(document).on('tap', '.date-list>li>a', function() {
+                        localStorage.nowDate = $(this).find('.dd').text();
+                        localStorage.routeId = data.GetRouteDetailResponse.routeId;
+                        window.location.href = "team-calendar.html?routeId=" + data.GetRouteDetailResponse.routeId;
+                    });
+
+                    // $('.dia-price .dp3').text(localStorage.adultAdvicePrice);
+                    // $('.dia-price .sp2').text(localStorage.adultDefaultPrice);
+                    $('title').text(localStorage.productName);
+
+
+                    $(".proDetail-bottom").click(function() {
+                        if (!arrLen) {
+                            alert("暂无团期");
+                            return false;
+                        } else {
+                            localStorage.routeId = data.GetRouteDetailResponse.routeId;
+                            localStorage.nowDate = $(".date-list>li>a").first().find('.dd').text()
+                            window.location.href = "team-calendar.html?routeId=" + data.GetRouteDetailResponse.routeId;
+                        }
+
+                    });
+
+
+                } else {
+                    alert(data.responseMetaInfo.reason);
+                }
+            },
+            error: function(data) {
+
+            }
+        });
+
+        function sortOriPrice(arr) {
+            var item;
+            if (arr && arr.length > 0) {
+                item = arr[0];
+
+                var adultAdvicePrice;
+                for (var i = 1; i < arr.length; i++) {
+                    adultAdvicePrice = parseFloat(item.adultOriginalPrice);
+                    var tempAdvicePrice = arr[i].adultOriginalPrice;
+                    if (tempAdvicePrice < adultAdvicePrice) {
+                        item = arr[i];
+                    }
+                }
+            }
+            return item;
+        };
+
+        function sortPrice(arr) {
+            var item;
+            if (arr && arr.length > 0) {
+                item = arr[0];
+
+                var adultAdvicePrice;
+                for (var i = 1; i < arr.length; i++) {
+                    adultAdvicePrice = parseFloat(item.adultDefaultPrice);
+                    var tempAdvicePrice = arr[i].adultDefaultPrice;
+                    if (tempAdvicePrice < adultAdvicePrice) {
+                        item = arr[i];
+                    }
+                }
+            }
+            return item;
+        };
+    </script>
+    <script>
+        mui(document).on('tap', '#showPop', function() {
+            $('.pop-wrapper').show();
+        })
+        mui(document).on('tap', '.pop-wrapper .hav', function() {
+            $('.pop-wrapper').hide();
+        })
+        mui(document).on('tap', '.toggle-box a', function() {
+            window.location.href = $(this).attr('href');
+        })
+        mui(document).on('tap', 'a.hh', function() {
+            window.location.href = $(this).attr('href');
+        })
+    </script>
+</body>
+
+</html>

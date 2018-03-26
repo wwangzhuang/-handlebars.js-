@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>创建订单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
+        <div class="common-header">
+            <div class="icon-back" onclick="mineInfoBack()">
+                <a href="#"></a>
+            </div>
+            <div class="common-title">
+                创建订单
+            </div>
+            <!--<div class="icon-search">-->
+                <!--<a href="destination.html"></a>-->
+            <!--</div>-->
+        </div>
+        <div class="createOrder">
+            <div class="mod-wrapper">
+                <div class="product-detail">
+                    <h5 id="travel-title">国内跟团</h5>
+                    <div class="items">
+                        <span class="id" id="travel-no">编号：155555555555</span>
+                        <span class="orderPlace" id="travel-place">出发地：</span>
+                        <span class="orderDate" id="travel-departdate">出发日期：</span>
+                        <span id="travel-days">天数：</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mod-wrapper">
+                <h5 class="u-title">联系人信息</h5>
+                <div class="telName">
+                    <label for="">姓名：</label>
+                    <input type="text" name="" value="" placeholder="请填写联系人中文姓名" id="travel-name">
+                </div>
+                <div class="telName">
+                    <label for="">电话：</label>
+                    <input type="number" name="" value="" placeholder="请填写联系人电话" id="travel-phone">
+                </div>
+            </div>
+
+            <div class="userInfo">
+                <div class="m-user">
+                    <h5 class="u-title">游客信息</h5>
+                    <a href="choosetraveller.html" class="often" id="btnChoose">选择常旅客</a>
+                </div>
+                <ul class="user-list" id="temp-list">
+
+                </ul>
+                <div class="pleaseAdd">
+                    请添加旅客信息
+                </div>
+            </div>
+
+            <div class="remarks">
+                <h5 class="u-title">订单备注（如有特殊需求，可作备注说明）</h5>
+                <!--<div class="icon-right"></div>-->
+                <textarea rows="3" cols="" style="margin-top:.1rem;" id="travelcreate-remark"></textarea>
+            </div>
+        </div>
+        <div class="createOrder-bottom">
+            <div class="reservation">
+                <i class="isAgree icon-user-check"></i> 我已阅读并同意
+                <a id="orderRules">预定协议</a>
+            </div>
+            <div class="clearfix">
+                <div class="total">
+                    <span class="tt">总额</span>
+                    <span class="num" id="travel-totalprice">￥0</span>
+                    <i class="i-upMore" id="iPriceInfo"></i>
+                </div>
+                <div class="submit" id="travel-createOrder">
+                    提交预定
+                </div>
+            </div>
+        </div>
+        <div class="createOrder-priceInfo showOrHide" id="showPriceInfo">
+            <ul>
+                <li>价格明细</li>
+                <li>
+                    成人
+                    <span class="fr" id="aduPrice">￥0/份 X 0</span>
+                </li>
+                <li>
+                    儿童
+                    <span class="fr" id="chdPrice">￥0/份 X 0</span>
+                </li>
+                <li>
+                    单房差
+                    <span class="fr" id="dfcPrice">￥0/份 X 0</span>
+                </li>
+            </ul>
+        </div>
+        <div id="orderRulesContent">
+            <div class="common-header">
+                <div class="icon-back" id="backLast">
+                    <a></a>
+                </div>
+                <div class="common-title">
+                    预定须知
+                </div>
+            </div>
+            <p class="main">
+                一、预定协议：</br>1）请不要将贵重物品及自用应急药品放在托运行李中，以免丢失。</br>2）请您在旅游期间遵守当地的法律法规，注意自己的人身和财产安全。</br>3）根据目的国使馆要求，旅游者在参团期间，不得脱离团队。</br>4）景点首道门票是指景区收取的，进入景区的首道门票。不包括该景区内单独收费的小景区、或景区内需要另行收取的交通费用。</br>5）如旅游者系港澳台人士，或持外籍护照，请在报名之前联系客服并告知是否自备目的国签证及再次进入中国的有效证件。</br>6）本团相关信息和紧急联系方式，将在出团通知中载明。</br>7）景点游览顺序根据最终航班时间及目的地天气、道路、节庆等情况适当调整，但不减少景点。以出团通知单为最终确认。</br>8）团队按不产生单男单女的原则分房，在不影响团队分房原则的前提下安排夫妻一间房，散拼团队因单男单女问题可能产生夫妻、亲属、朋友等不同房，请予以谅解和配合。</br>9）如报名人数出现单数，请与客服确认是否可以拼房，如供应商实在无法安排，则游客要自理单间差。</br>10）强烈建议所有游客购买旅游意外伤害保险；旅行社代为办理的保险，保险公司行业规定：3岁以下及70岁以上客人不在旅游意外保险投保范围内，请游客自行选择其他险种；</br>11）对于年满70周岁以上的参团游客，必须提供二级甲等或以上医院开具的相关健康证明并提供子女同意书原件；对于75周岁以上的老人，原则上我社不建议客人出行。未成年儿童出行必须有法定监护人陪伴。</br>12）此行程为参考行程，供应商可以根据人数、航班、签证及目的国之变化，保留调整之权利。</br>13）若客人取消行程，需支付行程内包含的机票、火车票、游轮票等已开费用，以及其他实际项目已发生费用。</br>14）由于航空公司税收变化频繁，我社有权凭借航空公司的涨税通知收取税收差价。</br>15）具体签证的送签日期和截止日期请和客服联系。</br>二、出行安全提示：</br>1）
+                旅游者参加高原地区旅游或风险旅游项目（包括但不限于：游泳、浮潜、冲浪、漂流等水上活动以及骑马、攀岩、登山等高风险的活动）或患有不宜出行旅游的 病情（包括但不限于：恶性肿瘤、心血管病、高血压、呼吸系统疾病、癫痫、怀孕、精神疾病、身体残疾、糖尿病、传染性疾病、慢性疾病健康受损），建议在报名
+                前自行前往医疗机构体检或自行咨询医院专业医生意见，以确保自身身体条件能够完成本次旅游活动。</br>2） 如自身身体条件不适宜出游而参加旅游活动的，在行程中因自身身体条件引发的疾病或70损害由旅游者本人承担相关责任；旅游者如系70上（含70岁）人员出游的，本人需充分考虑自身健康状况能够完成本次旅游活动，谨慎出游，建议要有亲友陪同出游，如因旅游者自身身体原因引发疾病或其他损害由旅游者
+                本人承担相关责任。</br>3）上述内容作为真旅给予旅游者的重要出游安全提示，如旅游者仍坚持参加旅游活动，由此造成任何人身意外及不良后果将由旅游者本人承担全部责任。为了获得更为全面的保障，真旅强烈建议旅游者出游时根据个人意愿和需要自行投保人身意外伤害保险等个人险种。</br>4）不可抗力是指不能预见、不能避免并不能克服的客观情况。不可抗力、意外事件等不可归责于旅行社的客观原因包括但不限于，恶劣天气、自然灾害、战争、罢
+                工、骚乱、飞机故障、航班保护、恐怖事件、政府行为、公共卫生事件等客观原因，造成旅游行程安排的交通服务延误、景区临时关闭、宾馆饭店临时被征用、出境 管制、边境关闭、目的地入境政策临时变更、我国政府机构发布橙色及以上旅游预警信息等，均会导致旅游目的无法实现，旅行社不承担违约责任。</br>5）在自行安排活动期间，旅游者应在自己能够控制风险的范围内活动，旅游者应选择自己能够控制风险的活动项目，并对自己的安全负责。</br>6）
+                旅游期间或自行安排活动期间请注意人身和财产安全。旅游者因违约、自身过错、自行安排活动期间内的行为或自身疾病引起的人身、财产损失由其自行承担； 由此给旅行社或其他服务提供方造成损失的，旅游者应当承担赔偿责任。为了获得更为全面的保障，乙方强烈建议旅游者出游时根据个人意愿和需要自行投保人身意
+                外伤害保险等个人险种。
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script id="template-list" type="text/x-handlebars-template">
+        {{#each this}}
+        <li>
+            <div class="user-item" data-key="{{travellerKey}}">
+                <div class="icon-delete btn-showDel"></div>
+                {{#if name}}
+                <span class="name changeDetail">{{name}}</span> {{else}}
+                <span class="name changeDetail">{{enName}}</span> {{/if}}
+                <span class="age changeDetail">{{personType type}}</span>
+                <span class="id changeDetail">{{cardType papers.[0].type}}</span>
+                <span class="num changeDetail">{{papers.[0].number}}</span>
+                <div class="drfc"><i class="isSelect icon-user-check"></i>单人房差</div>
+                <div class="icon-right changeDetail"></div>
+                <div class="u-del btn-del">删除</div>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+    <script>
+        $('#backLast').on('click', function () {
+            $('#orderRulesContent').removeClass('moveShow')
+        })
+        $('#orderRules').on('click', function () {
+            $('#orderRulesContent').addClass('moveShow');
+        })
+        window.localStorage.loginActionStatus = 1;
+
+        function mineInfoBack() {
+
+            var strState = window.localStorage.activityPageActivity;
+            if(strState == 'false')
+            {
+                if(window.localStorage.adultAdvicePrice)
+                {
+                    window.location.href = "product-detail.html?routeId=" + window.localStorage.routeId + "&adultAdvicePrice=" + window.localStorage.adultAdvicePrice + "&adultDefaultPrice=" + window.localStorage.adultDefaultPrice;
+                }
+                else
+                {
+                    window.location.href = "product-detail.html?routeId=" + window.localStorage.routeId;
+                }
+            }
+            else
+            {
+                window.location.href = "activity-detail.html?routeId=" + localStorage.activityRouteId + "&beginDate=" + localStorage.activityBeginTime + "&endDate=" + localStorage.activityEndTime  + "&minTitle=" + localStorage.activityMinTitle;
+            }
+        }
+
+        if(window.localStorage.arrTravelBalance){
+            $('#dfcPrice').text('￥'+ window.localStorage.seedBalancePrice +'/份 X '+ JSON.parse(window.localStorage.arrTravelBalance).length)
+        }else{
+            $('#dfcPrice').text('￥'+ 0 +'/份 X '+ 0);
+        }
+        //产品赋值
+        var travelCreateParam = JSON.parse(window.localStorage.travelCreateParam);
+        $("#travel-title").text(travelCreateParam.saleRouteName);
+        $("#travel-no").text("编号：" + travelCreateParam.routeId);
+        $("#travel-place").text("出发地: " + travelCreateParam.attractionNameCn);
+        $("#travel-departdate").text("出发日期：" + travelCreateParam.selDay);
+        $("#travel-days").text("天数：" + travelCreateParam.numOfDay + " 天");
+        $("#travel-days").text("天数：" + travelCreateParam.numOfDay + " 天");
+        //判断是否已经输入过联系人和电话号码和备注
+        if (window.localStorage.createTraverName) {
+//            if (isChinese(window.localStorage.createTraverName)) {
+//                if (window.localStorage.createTraverName.length >= 2 && window.localStorage.createTraverName.length <=
+//                    10) {
+                    $("#travel-name").val(window.localStorage.createTraverName);
+//                }
+//            }
+        } else {
+            if (isChinese(window.localStorage.contactUserName)) {
+                if (window.localStorage.contactUserName.length >= 2 && window.localStorage.contactUserName.length <= 10) {
+                    $("#travel-name").val(window.localStorage.contactUserName);
+                }
+            }
+        }
+
+        if (window.localStorage.contactMobile) {
+            $("#travel-phone").val(window.localStorage.contactMobile);
+        } else {
+            $("#travel-phone").val(window.localStorage.contactMobile);
+        }
+
+        if (window.localStorage.createTraverRemark) {
+            $("#travelcreate-remark").val(window.localStorage.createTraverRemark);
+        }
+
+        //创建订单
+        $("#travel-createOrder").click(function () {
+            createOrder();
+        });
+
+
+        function createOrder() {
+
+            var name = $("#travel-name").val();
+            if (name.length <= 0) {
+                alert("请输入联系人名称");
+                return;
+            }
+
+            if (!isChinese($("#travel-name").val())) {
+                alert("联系人姓名请输入2~10个中文");
+                return;
+            }
+
+            if (isChinese($("#travel-name").val())) {
+                if ($("#travel-name").val().length < 2 || $("#travel-name").val().length > 10) {
+                    alert("联系人姓名请输入2~10个中文");
+                    return;
+                }
+            }
+
+            var phone = $("#travel-phone").val();
+            if (!validatemobile(phone)) {
+                return;
+            }
+
+
+            var arrPerson = new Array();
+            if (window.localStorage.seedData) {
+                arrPerson = JSON.parse(window.localStorage.seedData);
+            }
+            if (arrPerson.length <= 0) {
+                alert("请选择常旅客");
+                return;
+            }
+
+            if (!($(".isAgree").hasClass("check"))) {
+                alert("请同意预订协议");
+                return;
+            }
+
+            var aduNum = 0;
+            for (var i = 0; i < arrPerson.length; i++) {
+                var item = arrPerson[i];
+                if (item.type == "ADU") {
+                    aduNum++;
+                }
+            }
+            var routeDetail = {};
+            if ($("#travelcreate-remark").val()) {
+                routeDetail.remark = $("#travelcreate-remark").val();
+            } else {
+                routeDetail.remark = "";
+            }
+            routeDetail.adultNum = aduNum;
+            routeDetail.childNum = arrPerson.length - aduNum;
+            routeDetail.adultPrice = window.localStorage.seedAdultPrice;
+            routeDetail.balancePrice = window.localStorage.seedBalancePrice;
+            routeDetail.childPrice = window.localStorage.seedChildPrice;
+            routeDetail.contactName = name;
+            routeDetail.contactTel = phone;
+            routeDetail.joinActivity = window.localStorage.joinActivity;
+            routeDetail.customerKey = defaultLoginrespon().apiUserName;
+            routeDetail.groupMark = window.localStorage.seedGroupMark;
+            //是否询位
+            if ((window.localStorage.seedNumberOfPlanSignUp - window.localStorage.seedNumberOfHasSignUp) >= arrPerson.length) {
+                routeDetail.isInquiry = "false";
+                sureCreate(routeDetail);
+            } else {
+
+                if (window.localStorage.activityPageActivity == 'true')
+                {
+                    alert("库存余额不足");
+                    return;
+                }
+
+                routeDetail.isInquiry = "true";
+
+                var mymessage = confirm("您预订的人数超出团剩余的人数，为您发起询位预订");
+                if (mymessage == true) {
+                    sureCreate(routeDetail);
+                } else if (mymessage == false) {
+                    return;
+                }
+            }
+        };
+
+        function sureCreate(routeDetail) {
+            var arrPerson = new Array();
+            if (window.localStorage.seedData) {
+                arrPerson = JSON.parse(window.localStorage.seedData);
+            }
+            var arrParamPserson = new Array();
+            for (var i = 0; i < arrPerson.length; i++) {
+                var item = arrPerson[i];
+                var inputItem = {};
+                if (item.name) {
+                    if(isChinese(item.name))
+                    {
+                        inputItem.cnName = item.name;
+                    }
+                    else
+                    {
+                        if(item.name && item.name.length > 0) {
+//                            if (!item.enName || item.enName.length <= 0) {
+//                                inputItem.cnName = item.name;
+//                            }
+                            inputItem.pyName = item.name;
+                        }
+                    }
+                }
+                //身份证获取出身日期和性别
+                var itempaper = cardInfoTravel("NI", "PP", "ID", item);
+                if (itempaper.type == "NI") {
+                    if (IDCardCheck(itempaper.number)) {
+                        inputItem.birthday = getBirthday(itempaper.number);
+                        var gender = getSex(itempaper.number);
+                        if (gender % 2 == 0) {
+                            inputItem.gender = "F";
+                        } else {
+                            inputItem.gender = "M";
+                        }
+                    } else {
+                        inputItem.birthday = item.birthday;
+                        if (item.gender == "MALE") {
+                            inputItem.gender = "M";
+                        } else {
+                            inputItem.gender = "F";
+                        }
+                    }
+                } else {
+                    inputItem.birthday = item.birthday;
+                    if (item.gender == "MALE") {
+                        inputItem.gender = "M";
+                    } else {
+                        inputItem.gender = "F";
+                    }
+                }
+
+                if (itempaper.type == "PP") {
+                    inputItem.idType = "PASSPORT";
+                } else if (itempaper.type == "NI") {
+                    inputItem.idType = "IDENTITY_CARD";
+                } else {
+                    inputItem.idType = "OTHER";
+                }
+                inputItem.idNumber = itempaper.number;
+                inputItem.identityNumber = itempaper.number;
+                if (item.type == "ADU") {
+                    inputItem.isAdult = true;
+                } else {
+                    inputItem.isAdult = false;
+                }
+                //单房差
+                inputItem.isBalance = "false";
+                if (window.localStorage.arrTravelBalance)
+                {
+                    var arrItem = JSON.parse(window.localStorage.arrTravelBalance);
+                    for(var j=0; j<arrItem.length; j++)
+                    {
+                        if(arrItem[j].key == item.travellerKey)
+                        {
+                            inputItem.isBalance = "true";
+                            break;
+                        }
+                    }
+                }
+                inputItem.mobelPhone = item.contact;
+                if(item.enName && item.enName.length > 0)
+                {
+                    inputItem.pyName = item.enName;
+                }
+                arrParamPserson.push(inputItem);
+            }
+            routeDetail.visitors = arrParamPserson;
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.CreateOrderRequest = routeDetail;
+
+            var url = travelLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                async: false,
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.responseMetaInfo.resultCode == 0) {
+
+                        if (routeDetail.isInquiry == "true") {
+                            window.location.href = "travel-order.html";
+                        } else {
+                            window.localStorage.removeItem("payStyle");
+                            window.location.href = "order-pay.html";
+                            window.localStorage.travelorderID = data.CreateOrderResponse.orderDetail.order.id;
+                        }
+                    } else {
+                        alert(data.responseMetaInfo.reason);
+                    }
+                },
+                error: function (data) {
+                    alert("网络异常");
+                }
+            });
+        }
+
+        $(function () {
+            $('html').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            $('body').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            if(window.sessionStorage.agreeCheck == 1){
+                $('.icon-user-check').addClass('check')
+            }
+
+
+
+            var storage = window.localStorage;
+            var seedData;
+            if (storage.seedData) {
+                seedData = JSON.parse(storage.seedData);
+            } else {
+                seedData = [];
+            }
+
+            if (window.localStorage.arrTravelBalance) {
+                var arrItem = JSON.parse(window.localStorage.arrTravelBalance);
+                for(var i=0; i<arrItem.length; i++)
+                {
+                    var itemKey = arrItem[i].key;
+                    for(var j=0; j<seedData.length; j++)
+                    {
+                        var  dataKey = seedData[j].travellerKey;
+                        if(dataKey == itemKey)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            if( j == seedData.length-1)
+                            {
+                                arrItem.splice(i, 1);
+                            }
+                        }
+                    }
+                }
+                if (arrItem.length <= 0) {
+                    window.localStorage.removeItem("arrTravelBalance");
+                } else {
+                    window.localStorage.arrTravelBalance = JSON.stringify(arrItem);
+                }
+            }
+
+            var seedState = [];
+            console.log(seedData);
+            travellerQueryRequest();
+
+            setTotalPrice();
+
+            function travellerQueryRequest() {
+
+                var myTemplate = Handlebars.compile($("#template-list").html());
+                $('#temp-list').html(myTemplate(seedData));
+
+                //单房差
+                var arrTravelBalance = new Array();
+                if (window.localStorage.arrTravelBalance) {
+                    arrTravelBalance = JSON.parse(window.localStorage.arrTravelBalance);
+                }
+
+                $('.user-item').each(function () {
+                    var key = $(this).data("key");
+                    for (var i = 0; i < arrTravelBalance.length; i++) {
+                        var itemKey = arrTravelBalance[i].key;
+                        if (key == itemKey) {
+                            $(this).find(".icon-user-check").addClass('check');
+                            continue;
+                        }
+                    }
+                });
+
+            }
+
+            if ($('.user-list>li').length === 0) {
+                $('.pleaseAdd').show();
+            } else {
+                $('.pleaseAdd').hide();
+            }
+
+            // 常旅客弹出删除按钮点击事件
+            $('.user-list').on('click', '.btn-showDel', function () {
+                if ($('.user-item.left').length > 0) {
+                    $('.user-item.left').removeClass('left');
+                } else {
+                    $(this).closest('.user-item').addClass('left');
+                }
+            });
+            // 常旅客信息修改点击事件
+            $('.user-list').on('click', '.changeDetail', function () {
+                saveTempData()
+                if ($('.user-item.left').length > 0) {
+                    $('.user-item.left').removeClass('left');
+                } else {
+                    var this_key = $(this).closest('.user-item').data('key');
+
+                    window.localStorage.removeItem("travellerInfo");
+                    var seedData;
+                    if (window.localStorage.seedData) {
+                        seedData = JSON.parse(storage.seedData);
+                    }
+                    for (var i = 0; i < seedData.length; i++) {
+                        var item = seedData[i];
+                        if (item.travellerKey == this_key) {
+                            window.localStorage.travellerInfo = JSON.stringify(item);
+                            break;
+                        }
+                    }
+                    window.localStorage.newTravelStatus = 2;
+                    window.location.href = "details-flyer.html";
+                }
+            });
+            // 常旅客删除事件
+            $('.user-list').on('click', '.btn-del', function () {
+                $(this).closest('li').remove();
+                var this_key = $(this).closest('.user-item').data('key');
+
+                for (var i = 0; i < seedData.length; i++) {
+                    if (this_key == seedData[i].travellerKey) {
+                        seedData.splice(i, 1);
+
+                        if (seedData.length <= 0) {
+                            window.localStorage.removeItem("seedData");
+                        } else {
+                            window.localStorage.seedData = JSON.stringify(seedData);
+                        }
+                        break;
+                    }
+                }
+
+                var arrTravelBalance = new Array();
+                if (window.localStorage.arrTravelBalance) {
+                    arrTravelBalance = JSON.parse(window.localStorage.arrTravelBalance);
+                }
+                for (var i = 0; i < arrTravelBalance.length; i++) {
+                    var itemKey = arrTravelBalance[i].key;
+                    if (this_key == itemKey) {
+                        arrTravelBalance.splice(i, 1);
+                        if (arrTravelBalance.length <= 0) {
+                            window.localStorage.removeItem("arrTravelBalance");
+                        } else {
+                            window.localStorage.arrTravelBalance = JSON.stringify(arrTravelBalance);
+                        }
+                        break;
+                    }
+                }
+
+                setTotalPrice();
+
+                if(window.localStorage.arrTravelBalance){
+                    $('#dfcPrice').text('￥'+ window.localStorage.seedBalancePrice +'/份 X '+ JSON.parse(window.localStorage.arrTravelBalance).length)
+                }else{
+                    $('#dfcPrice').text('￥'+ 0 +'/份 X '+ 0);
+                }
+
+            });
+
+            //选择常旅客点击事件
+            $('#btnChoose').on('click', function () {
+                saveTempData();
+
+                $('.user-item').each(function () {
+                    seedState.push($(this).data('key'));
+                });
+
+                storage.seedState = JSON.stringify(seedState);
+            });
+
+            $('#iPriceInfo').on('click', function () {
+                $('#showPriceInfo').toggleClass('showOrHide');
+            });
+
+            $('#showPriceInfo').on('click', function () {
+                $(this).addClass('showOrHide');
+            })
+
+            //价格刷新
+            function setTotalPrice() {
+                //                window.localStorage.removeItem("arrTravelBalance");
+                var total = 0;
+                var numOfAdu = 0;
+                var numOfChd = 0;
+                for (var i = 0; i < seedData.length; i++) {
+                    if (seedData[i].type == "ADU") {
+                        total += parseInt(storage.seedAdultPrice);
+                        numOfAdu++;
+                    } else {
+                        total += parseInt(storage.seedChildPrice);
+                        numOfChd++;
+                    }
+
+                    //判断是否有单房差
+                    var userKey = seedData[i].travellerKey;
+                    if (window.localStorage.arrTravelBalance) {
+
+                        var arrTravelBalance = JSON.parse(window.localStorage.arrTravelBalance);
+                        for (var j = 0; j < arrTravelBalance.length; j++) {
+                            var itemKey = arrTravelBalance[j].key;
+                            if (userKey == itemKey) {
+                                total += parseInt(storage.seedBalancePrice);
+                                break;
+                            }
+                        }
+                    }
+                }
+                $('#aduPrice').text('￥' + storage.seedAdultPrice + '/份 X ' + numOfAdu);
+                $('#chdPrice').text('￥' + storage.seedChildPrice + '/份 X ' + numOfChd);
+
+                if(window.localStorage.arrTravelBalance){
+                    $('#dfcPrice').text('￥'+ window.localStorage.seedBalancePrice +'/份 X '+ JSON.parse(window.localStorage.arrTravelBalance).length)
+                }else{
+                    $('#dfcPrice').text('￥'+ 0 +'/份 X '+ 0);
+                }
+                $("#travel-totalprice").text("￥" + total);
+
+                window.localStorage.travelorderPrice = total;
+            }
+
+            $(document).on('click', '.icon-user-check', function () {
+
+                var useKey;
+                if ($(this).hasClass('check')) {
+                    window.sessionStorage.agreeCheck = 0;
+                    $(this).removeClass('check');
+                    $(this).closest('.user-item').removeClass('drfc-sel');
+
+                    useKey = $(this).closest('.user-item').data("key");
+                } else {
+                    window.sessionStorage.agreeCheck = 1;
+                    $(this).addClass('check');
+                    $(this).closest('.user-item').addClass('drfc-sel');
+
+                    useKey = $(this).closest('.user-item').data("key");
+                }
+
+                //单房差
+                var arrTravelBalance = new Array();
+                if (window.localStorage.arrTravelBalance) {
+                    arrTravelBalance = JSON.parse(window.localStorage.arrTravelBalance);
+                }
+                var itemBalance = {};
+
+                if ($(this).closest('.user-item').hasClass("drfc-sel")) {
+                    itemBalance.key = useKey;
+                    arrTravelBalance.push(itemBalance);
+                } else {
+                    for (var i = 0; i < arrTravelBalance.length; i++) {
+                        var itemKey = arrTravelBalance[i].key;
+                        if (useKey == itemKey) {
+                            arrTravelBalance.splice(i,1);
+                            break;
+                        }
+                    }
+                }
+
+                if (arrTravelBalance.length <= 0) {
+                    window.localStorage.removeItem("arrTravelBalance");
+                } else {
+                    window.localStorage.arrTravelBalance = JSON.stringify(arrTravelBalance);
+                }
+                setTotalPrice();
+                if(window.localStorage.arrTravelBalance){
+                    $('#dfcPrice').text('￥'+ window.localStorage.seedBalancePrice +'/份 X '+ JSON.parse(window.localStorage.arrTravelBalance).length)
+                }else{
+                     $('#dfcPrice').text('￥'+ 0 +'/份 X '+ 0);
+                }
+                
+            })
+
+        });
+
+        //保存临时输入的数据
+        function saveTempData() {
+            window.localStorage.createTraverName = $("#travel-name").val();
+            window.localStorage.createTraverPhone = $("#travel-phone").val();
+            window.localStorage.createTraverRemark = $("#travelcreate-remark").val();
+        };
+    </script>
+</body>
+
+</html>

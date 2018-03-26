@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅游目的地</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function () {
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function () {
+                var vds = document.createElement('script');
+                vds.type = 'text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            旅游目的地
+        </div>
+    </div>
+    <div id="destination-container">
+        <header class="search-wrapper" id="temp-search"></header>
+        <div class="destination-cityList tabs-container" id="temp-view">
+        </div>
+    </div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script id="search-template" type="text/x-handlebars-template">
+        <div class="search-box">
+            <form id="myform">
+                <input type="text" name="" value="" placeholder="目的地、景点、关键字" id="searchIn">
+            </form>
+            <span class="icon-search"></span>
+        </div>
+    </script>
+    <script id="view-template" type="text/x-handlebars-template">
+        <div class="title-menu">
+            <ul>
+                {{#each GetLeftNavisResponse.appJOALeftNavis}}
+                <li class="tabs-nav" name="#{{this.columnID}}"><a>{{this.columnName}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="city-content">
+            {{#each GetLeftNavisResponse.appJOALeftNavis}}
+            <div id="{{this.columnID}}" class="tabs-panel">
+                <div class="class-item">
+                    <h5>城市推荐</h5>
+                    <ul class="clearfix">
+                        {{#each this.rcmdDsts}}
+                        <li><a href="search-list.html?keyWord={{this}}&type=travelList" class="city-item cityName">{{this}}</a></li>
+                        {{/each}}
+                    </ul>
+                </div>
+                {{#each this.areas}}
+                <div class="class-item">
+                    <h5>{{this.areaName}}</h5>
+                    <ul class="clearfix">
+                        {{#each this.locNameCn}}
+                        <li><a href="search-list.html?keyWord={{this}}&type=travelList" class="city-item cityName">{{this}}</a></li>
+                        {{/each}}
+                    </ul>
+                </div>
+                {{/each}}
+            </div>
+            {{/each}}
+        </div>
+    </script>
+    <script>
+        function mineInfoBack() {
+            window.location.href = "index.html";
+        };
+
+        $(function () {
+            //获取旅游目的地
+            var routeDetail = {};
+            //            routeDetail.isNearby = "false";
+            routeDetail.isAll = "true";
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.GetLeftNavisRequest = routeDetail;
+
+            var url = travelLink();
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    console.log(data);
+                    var myTemplate = Handlebars.compile($("#view-template").html());
+                    var myTemplate1 = Handlebars.compile($("#search-template").html());
+                    $('#temp-view').html(myTemplate(data));
+                    $('#temp-search').html(myTemplate1(data));
+                    $('.tabs-container').tabs();
+
+                    $('.cityName').on('click', function () {
+                        var storage = window.localStorage;
+                        storage.hotplacelink = $(this).text();
+                        storage.navcode == "ALL";
+                    });
+
+                    $('#myform').submit(function () {
+                        window.event.returnValue=false;
+                        var storage = window.localStorage;
+                        storage.hotplacelink = $('#searchIn').val();
+                        storage.navcode = 'ALL';
+                        var url = "search-list.html?keyWord=" + storage.hotplacelink + "&type=travelList";
+                        window.location.href = url;
+                    })
+                },
+                error: function (data) {}
+            });
+        })
+    </script>
+    <script>
+        $(function () {
+            $('html').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+            $('body').css({
+                "height": "100%",
+                "overflow": "hidden"
+            });
+        })
+    </script>
+</body>
+
+</html>

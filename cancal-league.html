@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>取消退团</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body class="bodyStyle">
+<div id="leaguecancel-apply">
+
+</div>
+
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/handlebars-v4.0.5.js"></script>
+<script src="js/mui.min.js"></script>
+<script src="js/swiper-3.4.2.jquery.min.js"></script>
+<script src="js/jq-plugins.js"></script>
+<script src="projectJs/jQuery.md5.js"></script>
+<script src="projectJs/normal.js"></script>
+
+<script id="leagueapplycancel-template" type="text/x-handlebars-template">
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            取消退团
+        </div>
+    </div>
+    <div class="selectTraveler">请选择退团旅客：</div>
+    <ul class="leagueTraveler">
+        {{#each person}}
+        <li>
+            <label class="radioName" data-travelkey="{{id}}">
+                <span class="radioIcon"></span>
+                {{#if cnName}}
+                <span class="travelerName">{{cnName}}</span>&nbsp;
+                {{else}}
+                <span class="travelerName">{{pyName}}</span>&nbsp;
+                {{/if}}
+
+                {{#adultOrChd isAdult}}
+                <span>成人</span>
+                {{else}}
+                <span>儿童</span>
+                {{/adultOrChd}}
+            </label>
+            <div>
+                <span>{{normalCardType idType}}</span>&nbsp;
+                <span>{{idNumber}}</span>
+            </div>
+            <div>
+                <span>手机号</span>&nbsp;
+                <span>{{mobelPhone}}</span>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+    <div class="bottomBtn">
+        <a href="javascript:void(0);" class="blueBtn submitLeagueBtn" onclick="traveloperatorCancel()" id="traveloperator-cancel">取消退团</a>
+    </div>
+</script>
+<script>
+    var selPersion = new  Array();
+
+    function mineInfoBack() {
+        window.location.href = "order-details.html";
+    }
+
+    $(function(){
+        //获取发起退团的常旅客
+        var arrPerson =  JSON.parse(window.localStorage.visitorSignBacks);
+        var data = {"person" : arrPerson};
+        var myTemplate = Handlebars.compile($("#leagueapplycancel-template").html());
+        $('#leaguecancel-apply').html(myTemplate(data));
+
+        $(".radioName").click(function(){
+            $(this).find(".radioIcon").toggleClass("current");
+
+            if($(this).find(".radioIcon").hasClass("current"))
+            {
+                var travelkey  = $(this).data("travelkey");
+                selPersion.push(travelkey);
+            }
+            else
+            {
+                var travelkey  = $(this).data("travelkey");
+                selPersion.pop(travelkey);
+            }
+
+        })
+    });
+
+
+    function traveloperatorCancel() {
+        if (selPersion.length <= 0)
+        {
+            alert("请选择常旅客");
+            return;
+        }
+
+
+        var routeDetail = {};
+        routeDetail.curCustomerKey = defaultLoginrespon().apiUserName;
+        routeDetail.orderId = window.localStorage.travelorderID;
+        var arrPersion = new  Array();
+        for(var i=0;i<selPersion.length; i++)
+        {
+            var itemPersion = {};
+            itemPersion.visitorId = selPersion[i];
+            arrPersion.push(itemPersion);
+        }
+        routeDetail.visitors = arrPersion;
+
+
+        var dataRequest = {};
+        dataRequest.requestMetaInfo = requestData();
+        dataRequest.CancelQuitRequest = routeDetail;
+        var url = travelLink();
+        $.ajax({
+            url: url,
+            dataType: 'json',
+            data: JSON.stringify(dataRequest),
+            type: 'post',
+            contentType: "application/json;utf-8",
+            success: function (data) {
+                if (data.responseMetaInfo.resultCode == 0)
+                {
+                    if(data.CancelQuitResponse.status == "SUCCESS")
+                    {
+                        window.location.href = "order-details.html";
+                    }
+                    else
+                    {
+                        alert(data.CancelQuitResponse.message);
+                    }
+                }
+                else
+                {
+                    alert(data.responseMetaInfo.reason);
+                }
+            },
+            error: function (data) {
+
+            }
+        });
+    }
+</script>
+
+</body>
+
+</html>

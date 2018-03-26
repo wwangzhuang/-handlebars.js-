@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>选择国籍</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+<div class="common-header">
+    <div class="icon-back" onclick="mineInfoBack()">
+        <a href="#"></a>
+    </div>
+    <div class="common-title">
+        选择国籍
+    </div>
+</div>
+<div class="traveller-searchBox">
+    <input type="text" placeholder="关键字搜索" class="searchIn">
+    <span id="cancelBtn">取消</span>
+</div>
+<ul class="nationality-list" id="temp-list">
+</ul>
+<ul class="traveller-letterList" id="temp-letter">
+</ul>
+<ul class="nationality-list-filter" id="temp-list-filter">
+</ul>
+
+
+
+<script src="js/jquery-3.1.1.min.js"></script>
+<script src="js/handlebars-v4.0.5.js"></script>
+<script src="js/mui.min.js"></script>
+<script src="js/jq-plugins.js"></script>
+<script src="projectJs/jQuery.md5.js"></script>
+<script src="projectJs/normal.js"></script>
+<script src="js/mootools.js"></script>
+<script src="js/pinyin.js"></script>
+<script src="js/common-method.js"></script>
+
+<script id="template-list" type="text/x-handlebars-template">
+    {{#each this}}
+    <li>
+        <div class="character" name="{{chars}}" id="{{chars}}">{{chars}}</div>
+        <div class="countryBox">
+            <ul>
+                {{#each regionName}}
+                <li class="country-item">{{this}}</li>
+                {{/each}}
+            </ul>
+        </div>
+    </li>
+    {{/each}}
+</script>
+<script id="template-letter" type="text/x-handlebars-template">
+    {{#each this}}
+    <li><a href="#{{chars}}">{{chars}}</a></li>
+    {{/each}}
+</script>
+
+<script id="template-list-filter" type="text/x-handlebars-template">
+    <div class="countryBox">
+        <ul>
+            {{#each this}}
+            <li class="country-item">{{regionName}}</li>
+            {{/each}}
+        </ul>
+    </div>
+</script>
+
+<script>
+    var resultArr;
+    function mineInfoBack() {
+        window.location.href = "details-flyer.html";
+    };
+
+    $(function () {
+        $('html').css({
+            "height": "100%",
+            "overflow": "hidden"
+        });
+        $('body').css({
+            "height": "100%",
+            "overflow": "hidden"
+        });
+        $('#cancelBtn').on('click', function () {
+            $(this).hide();
+            $('#temp-list-filter').hide();
+            $('.searchIn').css({
+                'text-align': 'center',
+                'width': '7.1rem'
+            })
+
+            $(".searchIn").val("");
+        })
+        $('.searchIn').on('click', function () {
+            if ($(this).val())
+            {
+                return;
+            }
+
+            $(this).css('text-align', 'left');
+            $(this).css('width', '6.2rem');
+            $('#cancelBtn').show();
+            $('#temp-list-filter').show();
+
+            var searchArr = new Array();
+            var myTemplate = Handlebars.compile($("#template-list-filter").html());
+            $('#temp-list-filter').html(myTemplate(searchArr));
+
+            if ($(this).val()) {
+                $('#temp-list-filter').css('background', '#fff');
+                $('#temp-list-filter').off('click')
+            } else {
+                $('#temp-list-filter').css('background', 'rgba(0, 0, 0, 0.5)');
+                $('#temp-list-filter').on('click', function () {
+                    $(this).hide();
+                    $('.searchIn').css({
+                        'text-align': 'center',
+                        'width': '7.1rem'
+                    });
+                    $('#cancelBtn').hide();
+                });
+            }
+        });
+        $('#temp-list-filter').on('click', function () {
+            $(this).hide();
+            $('.searchIn').css({
+                'text-align': 'center',
+                'width': '7.1rem'
+            });
+            $('#cancelBtn').hide();
+        });
+        $('.searchIn').on('keyup', function () {
+            if ($(this).val()) {
+                $('#temp-list-filter').css('background', '#fff');
+                $('#temp-list-filter').off('click')
+            } else {
+                $('#temp-list-filter').css('background', 'rgba(0, 0, 0, 0.5)');
+                $('#temp-list-filter').on('click', function () {
+                    $(this).hide();
+                    $('.searchIn').css({
+                        'text-align': 'center',
+                        'width': '7.1rem'
+                    });
+                    $('#cancelBtn').hide();
+                });
+            }
+        })
+
+        //检测输入框内容变化
+        $('.searchIn').bind('input propertychange', function() {
+            var text = $(".searchIn").val();
+            if(text.length <= 0)
+            {
+                $("#cancelBtn").hide();
+                $('#temp-list-filter').hide();
+                $('.searchIn').css({
+                    'text-align': 'center',
+                    'width': '7.1rem'
+                })
+                $(".searchIn").blur();
+                return;
+            }
+
+            var searchArr = new Array();
+            for(var i=0; i<resultArr.length; i++){
+                var data = resultArr[i];
+                if(isContains(data.regionCode.toLowerCase(), text.toLowerCase())){
+                    searchArr.push(data);
+                    continue;
+                }
+                if(isContains(data.regionName, text))
+                {
+                    searchArr.push(data);
+                    continue;
+                }
+            }
+
+            var myTemplate = Handlebars.compile($("#template-list-filter").html());
+            $('#temp-list-filter').html(myTemplate(searchArr));
+        });
+
+        mui(document).on('tap', '.country-item', function () {
+            var str = $(this).text();
+            var info = JSON.parse(window.localStorage.travellerInfo);
+            info.nationality = str;
+            window.localStorage.travellerInfo = JSON.stringify(info);
+            window.location.href = "details-flyer.html";
+        });
+
+
+        nationData();
+
+        function nationData() {
+            var routeDetail = {};
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppGetRegionRequest = routeDetail;
+
+            var url = normalInfoLink() + "/flight/international";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.responseMetaInfo.resultCode == 0) {
+                        resultArr = data.AppGetRegionResponse.regions;
+
+                        var countryList = [];
+                        var characterList = [];
+                        var removeSamechar = [];
+                        var characterObjList = [];
+                        var countryObjList = data.AppGetRegionResponse.regions;
+                        var py = new Pinyin();
+                        for (var i = 0; i < countryObjList.length; i++) {
+                            countryObjList[i].firstChracter = py.getFullChars(countryObjList[i]
+                                    .regionName).substring(0, 1);
+                        };
+
+                        for (var i = 0; i < countryObjList.length; i++) {
+                            characterList.push(countryObjList[i].firstChracter);
+                        };
+
+                        removeSamechar = removeSameStr(characterList);
+                        for (var i = 0; i < removeSamechar.length; i++) {
+                            characterObjList.push({
+                                chars: removeSamechar[i],
+                                regionName: []
+                            });
+                        }
+                        for (var i = 0; i < characterObjList.length; i++) {
+                            for (var j = 0; j < countryObjList.length; j++) {
+                                if (countryObjList[j].firstChracter === characterObjList[i].chars) {
+                                    characterObjList[i].regionName.push(countryObjList[j].regionName);
+                                }
+                            }
+                        }
+                        console.log(characterObjList);
+                        var myTemplate = Handlebars.compile($("#template-list").html());
+                        $('#temp-list').html(myTemplate(characterObjList));
+                        var myTemplate1 = Handlebars.compile($("#template-letter").html());
+                        $('#temp-letter').html(myTemplate1(characterObjList));
+
+                    } else {
+
+                    }
+                },
+                error: function (data) {
+
+                }
+            });
+        }
+
+    })
+</script>
+</body>
+
+</html>

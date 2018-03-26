@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body>
+    <div class="common-header">
+        <div class="icon-back" onclick="goBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            登录
+        </div>
+    </div>
+    <div class="registerModule">
+        <div class="logo">
+            <a href="javascript:void(0);"></a>
+        </div>
+        <ul class="registerList clearfix">
+            <li class="current" id="normal-login">
+                <a href="javascript:void(0);">普通登录</a>
+            </li>
+            <li id="number-login">
+                <a href="javascript:void(0);">手机动态密码登录</a>
+            </li>
+        </ul>
+        <div class="registerContent">
+            <div class="registerChange">
+                <ul class="writeInfo">
+                    <li>
+                        <span class="commonIcon userIcon"></span>
+                        <input type="text" placeholder="用户名/手机" id="writeInfo-useName"/>
+                    </li>
+                    <li>
+                        <span class="commonIcon psIcon"></span>
+                        <input type="password" placeholder="密码" id="writeInfo-passWord"/>
+                        <a href="forget-password.html" class="forgetPw" id="login-forget-password">忘记密码？</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="registerChange" style="display: none;">
+                <ul class="writeInfo">
+                    <li>
+                        <span class="commonIcon userIcon"></span>
+                        <input type="text" placeholder="请输入绑定手机号" id="writeInfo-phone"/>
+                        <a href="javascript:void(0);" class="gainPw" id="showPop">获取动态密码</a>
+                    </li>
+                    <li>
+                        <span class="commonIcon psIcon"></span>
+                        <input type="password" placeholder="请输入动态密码" id="writeInfo-code"/>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="bigRegisterBtn">
+            <a href="javascript:void(0);" class="bigRedBg">登 录</a>
+            <a href="register.html" class="bigRedBorder">注 册</a>
+        </div>
+    </div>
+
+    <div class="pop-wrapper">
+        <div class="popContent">
+            <h5>请填写图形验证码</h5>
+            <div class="popMargin">
+                <div class="popVerificationCode">
+                    <input type="text" name="" id="popVerificationCode-text">
+                    <img src="images/verificationCode.jpg" alt="" id="verificationCode-image" />
+                </div>
+                <div class="popBtn clearfix">
+                    <a href="javascript:void(0);" class="grayBtn">取 消</a>
+                    <a href="javascript:void(0);" class="redBtn" id="img-code-sure">确 定</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="http://passport.cnblogs.com/scripts/jsencrypt.min.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script>
+
+        function goBack(){
+            window.location.href = "index.html";
+        }
+
+        $(function(){
+            $(".registerList li").each(function(index){
+                $(this).click(function(){
+                    $(".registerContent .registerChange").hide();
+                    $(".registerContent .registerChange:eq(" + index + ")").show();
+                    $(".registerList li").removeClass("current");
+                    $(this).addClass("current");
+                });
+            });
+
+            $(".bigRedBg").click(function () {
+                //普通登陆
+                if($("#normal-login").hasClass("current"))
+                {
+                    normalloginEvent();
+                }
+                else //动态密码登陆
+                {
+                    dycmailPasswordEvent();
+                }
+            });
+
+            //获取验证码
+            $(".gainPw").click(function () {
+                var userName = $("#writeInfo-phone").val();
+                if (validatemobile(userName))
+                {
+                    //判断当前是否是在倒计时
+                    var strText = $("#showPop").text();
+                    if (strText == "获取动态密码")
+                    {
+                        //获取图形验证码
+                        codeEvent();
+                    }
+                }
+            });
+
+            //点击图片区域重新获取验证码
+            $("#verificationCode-image").click(function () {
+                var userName = $("#writeInfo-phone").val();
+                if (validatemobile(userName))
+                {
+                    //获取图形验证码
+                    codeEvent();
+                }
+            })
+
+            
+            //验证取消
+            $(".grayBtn").click(function () {
+                $(".pop-wrapper").hide();
+            })
+
+            //验证确定
+            $("#img-code-sure").click(function () {
+                var strCode = $("#popVerificationCode-text").val();
+                if(strCode.length > 0)
+                {
+                      var strCodeValue = $("#verificationCode-image").data("valueImg");
+                      if(strCode.toLocaleLowerCase() != strCodeValue.toLocaleLowerCase())
+                      {
+                          alert("请输入正确的验证码");
+                      }
+                      else
+                      {
+                          $(".pop-wrapper").hide();
+                          //获取短信验证码
+
+                          var text = $("#showPop").text();
+                          if(text == "获取动态密码")
+                          {
+                              signCodeNumber();
+                          }
+                      }
+                }
+                else
+                {
+                    alert("请输入验证码");
+                }
+            })
+
+        });
+
+        function normalloginEvent() {
+
+            var userName = $("#writeInfo-useName").val();
+
+            var passWord = $("#writeInfo-passWord").val();
+
+            if (userName.length <= 0)
+            {
+                alert('请输入用户名称');
+                return;
+            }
+
+            if(passWord.length < 6 || passWord.length > 18)
+            {
+                alert('请输入6~18位有效的密码');
+                return;
+            }
+
+            //登陆请求
+            var routeDetail = {};
+            routeDetail.password = passWord;
+            routeDetail.username = userName;
+            routeDetail.responseDataType = "JSON";
+
+            var url = "https://app.travelzen.com/tops-openapi-for-customers/login";
+            if (isOp3 == 1)
+            {
+                url = "http://192.168.161.137:8480/login";
+            }
+
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(routeDetail),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.hasOwnProperty("userName"))
+                    {
+                        changeStatus(1);
+                        responLoginData(data);
+
+                        loginFromStatus();
+                    }
+                    else
+                    {
+                        alert(data.errInfo);
+                    }
+                },
+                error: function (data) {
+                    alert("网络异常");
+                }
+            });
+        }
+
+        //获取验证码
+        function signCodeNumber() {
+            var userName = $("#writeInfo-phone").val();
+            if(!validatemobile(userName))
+            {
+                return;
+            }
+            var strCodeValue = $("#verificationCode-image").data("valueImg");
+            var strUrl = "type=1&mobileNumber=" + userName + "&identifyingCode=" + strCodeValue + "&deviceId=" + $("#verificationCode-image").data("valueDeviceId");;
+            var url = "https://app.travelzen.com/tops-openapi-for-customers/mobileLogin/verificationCode?";
+            if (isOp3 == 1)
+            {
+                url = "http://192.168.161.137:8480/mobileLogin/verificationCode?";
+            }
+            url = url + strUrl;
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if(data.result == "FAIL")
+                    {
+                        alert(data.errInfo);
+                    }
+                    else
+                    {
+                        var countdown=60;
+                        timerOut(countdown);
+                    }
+                },
+                error: function (data) {
+                    alert("网络异常");
+                }
+            });
+        }
+
+        //获取图片验证
+        function codeEvent() {
+            var  timelong = Date.parse(new Date());
+
+            //保存当前时间戳 用于获取验证码数据
+            $("#verificationCode-image").data("valueDeviceId",timelong);
+
+            var url = "https://app.travelzen.com/tops-openapi-for-customers/mobileLogin/identifyingCode?key=";
+            if (isOp3 == 1)
+            {
+                url = "http://192.168.161.137:8480//mobileLogin/identifyingCode?key=";
+            }
+            url = url + timelong;
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.hasOwnProperty("imageStr"))
+                    {
+                        var imgData = "data:image/png;base64,";
+                        imgData = imgData + data.imageStr;
+                        $("#verificationCode-image").attr("src",imgData);
+                        $("#verificationCode-image").data("valueImg",data.value)
+                        $('.pop-wrapper').show();
+                        var popHeight = -$(".popContent").height()/2/43 + "rem";
+                        $(".popContent").css("marginTop",popHeight);
+
+                    }
+                },
+                error: function (data) {
+                    alert("网络异常");
+                }
+            });
+        }
+
+        function timerOut(countdown)
+        {
+            if (countdown == 0) {
+                $("#showPop").text('获取动态密码');
+                countdown = 60;
+            } else {
+                $("#showPop").text("重新发送(" + countdown + "s)");
+                countdown--;
+            }setTimeout(function() {
+                if (countdown != 60) {
+                    timerOut(countdown)
+                }
+            },1000)
+        }
+
+        //动态密码登陆
+        function dycmailPasswordEvent() {
+
+            var userName = $("#writeInfo-phone").val();
+            if(!validatemobile(userName))
+            {
+                return;
+            }
+
+            var passWord = $("#writeInfo-code").val();
+
+
+            var routeDetail = {};
+            routeDetail.mobileNumber = userName;
+            routeDetail.verificationCode = passWord;
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppMobileLoginRequest = routeDetail;
+
+            var url = "https://app.travelzen.com/tops-openapi-for-customers/service/flight/register";
+            if (isOp3 == 1)
+            {
+                url = "http://192.168.161.137:8480/service/flight/register";
+            }
+
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if(data.responseMetaInfo.resultCode == 0)
+                    {
+                        if(data.AppMobileLoginResponse.hasOwnProperty("result") && data.AppMobileLoginResponse.result == "FAIL")
+                        {
+                            alert(data.AppMobileLoginResponse.errInfo)
+                        }
+                        else
+                        {
+                            if (data.AppMobileLoginResponse.hasOwnProperty("userName"))
+                            {
+                                changeStatus(1);
+                                responLoginData(data.AppMobileLoginResponse);
+
+                                loginFromStatus();
+                                //window.location.href = "index.html";
+                            }
+                            else
+                            {
+                                alert("网络异常");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        alert(data.responseMetaInfo.reason)
+                    }
+                },
+                error: function (data) {
+                    alert("网络异常");
+                }
+            });
+        }
+
+    </script>
+
+
+</body>
+
+</html>

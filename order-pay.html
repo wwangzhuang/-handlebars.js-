@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>订单支付</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body class="bodyStyle">
+    <div id="hideIframe" style="display: none"></div>
+    <div class="common-header">
+        <div class="icon-back" onclick="mineInfoBack()">
+            <a href="#"></a>
+        </div>
+        <div class="common-title">
+            订单支付
+        </div>
+    </div>
+    <ul class="payOrderNum">
+        <li>
+            <b>订单号：</b>
+            <span id="pay-orderid">1608111825191245</span>
+        </li>
+        <li>
+            <b>类 型：</b>
+            <span>旅游</span>
+        </li>
+    </ul>
+    <div class="orderPayTotal">
+        <b style="font-size:.26rem">应付总额：</b>
+        <span class="orangeMoney">
+            <em style="font-size:.32rem">￥</em>
+            <b id="pay-moneytotal" style="font-size:.32rem">1940</b>
+            <strong id="pay_float" style="font-size:.32rem">.00</strong>
+        </span>
+    </div>
+    <div class="loading">
+        <div id="loading"></div>
+    </div>
+
+    <div class="selectPayWay">
+        <div class="payTitleFonts">请选择支付方式</div>
+        <ul class="payWay">
+            <li id="pay_style">
+                <i class="checkBoxIcon" id="normal-select"></i>
+                <div>
+                    <i class="balanceIcon"></i>
+                    <b class="fontSize32">账户余额</b>
+                    <em class="color999" id="order-money" style="font-size:.24rem">（可用余额 999568.00）</em>
+                </div>
+                <div>
+                    <span class="orangeMoney">
+                        <em>￥</em>
+                        <span class="fontSize32" id="total-pay">1940.00</span>
+                    </span>
+                    <i class="payPwIcon"></i>
+                    <input  type="password" placeholder="支付密码" class="payPwBox" id="pay-password"/>
+                </div>
+                <div class="textAlignRight">
+                    <a href="set-paypassword.html">未设置支付密码？</a>
+                </div>
+            </li>
+            <li id="pay_style_wechat">
+                <i class="checkBoxIcon" id="wechat-select"></i>
+                <div >
+                    <i class="weiXinIcon"></i>
+                    <b class="fontSize32">微信</b>
+                </div>
+                <div>
+                <span class="orangeMoney">
+                    <em>￥</em>
+                    <span class="fontSize32" id="wechat_orderprice">0.00</span>
+                </span>
+                    <span class="color999" id="wechat-fee" style="font-size:.24rem">（含微信手续费11.64）</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="bottomBtn">
+        <a href="javascript:void(0);" class="blueBtn submitLeagueBtn" id="pay-action">确定支付</a>
+    </div>
+    
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script src="http://passport.cnblogs.com/scripts/jsencrypt.min.js"></script>
+
+
+    <script>
+
+        var availableAmount = 0;
+        var payType = 0;
+
+        function mineInfoBack(){
+            window.location.href = "travel-order.html";
+        };
+
+        if(window.localStorage.payStyle)
+        {
+            payType = window.localStorage.payStyle;
+        }
+
+        if(payType == 0)
+        {
+            $("#pay_style").addClass("current");
+            $("#pay_style_wechat").removeClass("current");
+        }
+        else
+        {
+            $("#pay_style_wechat").addClass("current");
+            $("#pay_style").removeClass("current");
+        }
+
+        $("#pay-orderid").text(window.localStorage.travelorderID);
+        //订单总额
+        var priceTotal = parseFloat(window.localStorage.travelorderPrice).toFixed(2);
+        $("#pay-moneytotal").text(parseInt(priceTotal));
+
+        $("#pay_float").text("." +　priceTotal.split(".")[1]);
+
+        $("#wechat_orderprice").text(priceTotal);
+        //账户余额
+        $("#order-money").text("0.00");
+        //订单总额(余额支付订单价格  不包含手续费)
+        $("#total-pay").text(priceTotal);
+        //微信手续费
+//        $("#wechat-fee").text(window.localStorage.travelorderPrice);
+
+        var wechatPayUrl = {};
+        // 0代表余额支付  1代表微信支付  默认为0
+        $(function(){
+
+            balanceMoney();
+            wechatPayFee();
+
+            $(".payWay li").click(function(){
+                $(this).each(function(){
+                    $(this).addClass("current");
+                    $(this).siblings().removeClass("current");
+                });
+
+                if($("#pay_style").hasClass("current"))
+                {
+                    payType = 0;
+                }
+                else
+                {
+                    payType = 1;
+                }
+            })
+        });
+
+        $("#normal-select").click(function () {
+            payType = 0;
+        });
+
+        $("#wechat-select").click(function () {
+            payType = 1;
+        });
+
+        $("#pay-action").click(function () {
+
+            if(payType == 0)
+            {
+                //判断余额和订单支付价格是否大小
+                if(availableAmount < priceTotal) {
+                    alert("您当前账户余额不足");
+                    return;
+                }
+                else
+                {
+                    moneyPay();
+                }
+            }
+            else
+            {
+                if (typeof WeixinJSBridge == "undefined"){
+                    if( document.addEventListener ){
+                        document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                    }else if (document.attachEvent){
+                        document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                        document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                    }
+                }else{
+                    //判断是否存在openId字段
+                    if(window.localStorage.wechatOpenId)
+                    {
+                        //直接调用支付
+                        wechatPayLink();
+                    }
+                    else
+                    {
+                        //先重定向获取code
+                        var access_code = getQueryString('code');
+                        if (access_code)
+                        {
+                             getOpenIdFirstFromJava();
+                        }
+                        else
+                        {
+                            var stateValue = "dydp_0"
+                            if(isOp3 == 0)
+                            {
+                                stateValue = "dydp_1"
+                            }
+                            var fromurl = "http://mp.travelzen.com";
+                            var urlLocation = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx94747f5208f79506&redirect_uri=" + fromurl +
+                                "&response_type=code&scope=snsapi_base&state=" + stateValue +"&#wechat_redirect';";
+                            window.location.href = urlLocation;
+                        }
+
+                    }
+                }
+            }
+        });
+        
+        function moneyPay() {
+            var password = $("#pay-password").val();
+            if(password.length <= 0)
+            {
+                alert("请输入支付密码");
+                return;
+            }
+            var routeDetail = {};
+            routeDetail.curCustomerKey = defaultLoginrespon().apiUserName;
+            routeDetail.orderId = window.localStorage.travelorderID;
+            var encrypt=new JSEncrypt();
+            encrypt.setPublicKey("MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC/oMXcjY1JWZsu2id4QCE+mCzO1lv9r6EKpYFM90oOwR1WDnGziD1rKeJE6Lt7QUQT9km0S+iul4YTW/zeoJhROI1TX57KFJPOaduQq/aXb8Pc5bxKk5G1+/kPJ4IG6M1BXY3UGZ3Zhn+6p88Mq3eV83/qAqG18CXyv/bN0/NEfQIDAQAB")
+            routeDetail.passWord = encrypt.encrypt(password);
+
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.PayAllOrderRequest = routeDetail;
+
+            var url = normalInfoLink();
+            url = url +  "/flight/travel";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.responseMetaInfo.resultCode == 0)
+                    {
+                        if(data.PayAllOrderResponse.status == "SUCCESS")
+                        {
+                            window.location.href = "travel-order.html";
+                        }
+                        else
+                        {
+                            alert(data.PayAllOrderResponse.message);
+                        }
+                    }
+                    else
+                    {
+                        alert(data.responseMetaInfo.reason);
+                    }
+                },
+                beforeSend: function () {
+                    $('.loading').show();
+                },
+                complete: function () {
+                    $('.loading').hide();
+                },
+                error: function (data) {
+                }
+            });
+        };
+
+        //获取微信支付link
+        function wechatPayLink() {
+            var routeDetail = {};
+            routeDetail.curCustomerKey = defaultLoginrespon().apiUserName;
+            routeDetail.orderId = window.localStorage.travelorderID;
+            routeDetail.payType = "OFFICIAL_ACCOUNTS";
+            if(!window.localStorage.wechatOpenId)
+            {
+                alert("获取用户信息失败");
+                return;
+            }
+            routeDetail.openId = window.localStorage.wechatOpenId;
+
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestDataHtml();
+            dataRequest.PayAllOrderRequest = routeDetail;
+
+            var url = normalInfoLink();
+            url = url +  "/flight/travel";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.responseMetaInfo.resultCode == 0)
+                    {
+                        if (data.PayAllOrderResponse.status == "FAILED")
+                        {
+                            alert(data.PayAllOrderResponse.message);
+                        }
+                        else
+                        {
+                            var wechatURL = data.PayAllOrderResponse.payUrl;
+                            var appid = wechatURL.substring(wechatURL.indexOf("appId=") + 6,wechatURL.indexOf("&nonceStr"));
+                            wechatPayUrl.appId = appid;
+                            var timeStamp = wechatURL.substring(wechatURL.indexOf("timeStamp=") + 10,wechatURL.length);
+                            wechatPayUrl.timeStamp = timeStamp;
+                            var noncestr = wechatURL.substring(wechatURL.indexOf("nonceStr=") + 9,wechatURL.indexOf("&package="));
+                            wechatPayUrl.noncestr = noncestr;
+                            var package = wechatURL.substring(wechatURL.indexOf("prepay_id=") ,wechatURL.indexOf("&paySign="));
+                            wechatPayUrl.package = package;
+                            var paySign = wechatURL.substring(wechatURL.indexOf("paySign=")+8 ,wechatURL.indexOf("&signType="));
+                            wechatPayUrl.paySign = paySign;
+                            onBridgeReady();
+                        }
+                    }
+                    else
+                    {
+                        alert("failed");
+                    }
+                },
+                beforeSend: function () {
+                    $('.loading').show();
+                },
+                complete: function () {
+                    $('.loading').hide();
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+        function onBridgeReady(){
+            WeixinJSBridge.invoke(
+                    'getBrandWCPayRequest', {
+                        "appId":wechatPayUrl.appId,    //公众号名称，由商户传入
+                        "timeStamp":wechatPayUrl.timeStamp,         //时间戳，自1970年以来的秒数
+                        "nonceStr":wechatPayUrl.noncestr, //随机串
+                        "package":wechatPayUrl.package,
+                        "signType":"MD5",         //微信签名方式：
+                        "paySign":wechatPayUrl.paySign //微信签名
+                    },
+                    function(res){
+                        if(res.err_msg == "get_brand_wcpay_request:ok" )  // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+                        {
+                            alert("支付成功");
+                            window.location.href = "travel-order.html";
+                        }
+                        else
+                        {
+                            if(res.err_msg == "get_brand_wcpay_request:cancel")
+                            {
+                                alert("支付取消");
+                            }
+                            else
+                            {
+                                alert("支付失败");
+                            }
+                        }
+                    }
+            );
+        }
+
+        //获取账户余额
+        function balanceMoney() {
+
+            var routeDetail = {};
+            routeDetail.default = "default";
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+
+            dataRequest.AccountInfoQueryRequest = routeDetail;
+
+            var url = normalInfoLink();
+            url = url +  "/flight/basic";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.responseMetaInfo.resultCode == 0)
+                    {
+                        availableAmount = parseInt(data.AccountInfoQueryResponse.availableAmount)/100;
+                        $("#order-money").text("(" + "可用余额" + availableAmount + ")");
+                    }
+                    else
+                    {
+
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+
+        //获取微信支付手续费
+        function wechatPayFee() {
+
+            var routeDetail = {};
+            routeDetail.businessType = "JOURNEY";
+            routeDetail.payType = "OFFICIAL_ACCOUNTS";
+            routeDetail.orderPrice = window.localStorage.travelorderPrice * 100;
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppAccessFeesRequest = routeDetail;
+
+            var url = normalInfoLink();
+            url = url +  "/flight/basic";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if (data.responseMetaInfo.resultCode == 0)
+                    {
+                        var availableAmount = data.AppAccessFeesResponse.officalAccountFees/100;
+                        availableAmount = parseFloat(availableAmount).toFixed(2);
+                        $("#wechat-fee").text("(" + "含微信手续费" + availableAmount + ")");
+
+                        $("#wechat_orderprice").text((parseFloat(window.localStorage.travelorderPrice) + parseFloat(availableAmount)).toFixed(2));
+                    }
+                    else
+                    {
+
+                    }
+                },
+                error: function (data) {
+                }
+            });
+        }
+    </script>
+
+    <script>
+
+        var access_code = getQueryString('code');
+        if (access_code)
+        {
+            window.localStorage.wechatCode = access_code;
+            getOpenIdFirstFromJava();
+        }
+
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = location.search.substr(1).match(reg);
+            if (r != null)
+                return unescape(decodeURI(r[2]));
+            return null;
+        }
+
+        //后台获取用户的openid
+        function getOpenIdFirstFromJava() {
+            var url = "http://192.168.161.137:8480/webChat/dispatcher";
+            if (isOp3 == 0)
+            {
+                url = "https://app.travelzen.com/tops-openapi-for-customers/webChat/dispatcher";
+            }
+            var data = {};
+            data.code = window.localStorage.wechatCode;
+            data.url = "https://api.weixin.qq.com/sns/oauth2/access_token";
+
+            $.ajax({
+                type: 'post',
+                url: url,
+                data: data,
+                success: function (data) {
+                    if (JSON.parse(data).hasOwnProperty("openid"))
+                    {
+                        window.localStorage.wechatOpenId = JSON.parse(data).openid;
+                    }
+                    else
+                    {
+                        $('.loading').hide();
+                    }
+                },
+                beforeSend: function () {
+                    $('.loading').show();
+                },
+                complete: function () {
+                    wechatPayLink();
+                },
+                error: function (data) {
+                    $('.loading').hide();
+                }
+            });
+        }
+        </script>
+</body>
+
+</html>

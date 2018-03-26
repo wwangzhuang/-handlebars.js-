@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script>
+        document.documentElement.style.fontSize = window.innerWidth / 7.5 + 'px';
+    </script>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/details.css">
+    <link href="css/mui.picker.css" rel="stylesheet" />
+    <link href="css/mui.poppicker.css" rel="stylesheet" />
+
+    <script type='text/javascript'>
+        var _vds = _vds || [];
+        window._vds = _vds;
+        (function(){
+            _vds.push(['setAccountId', 'aeea6ff5baedd18e']);
+            (function() {
+                var vds = document.createElement('script');
+                vds.type='text/javascript';
+                vds.async = true;
+                vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(vds, s);
+            })();
+        })();
+    </script>
+    <script type='text/javascript' src='https://assets.growingio.com/sdk/wx/vds-wx-plugin.js'></script>
+</head>
+
+<body class="bodyStyle">
+    <div class="mine-infoDetail">
+    </div>
+    <div class="bottomLogo">
+        <img src="images/grayLogo.png" alt=""/>
+    </div>
+
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/handlebars-v4.0.5.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/swiper-3.4.2.jquery.min.js"></script>
+    <script src="js/jq-plugins.js"></script>
+    <script src="projectJs/jQuery.md5.js"></script>
+    <script src="projectJs/normal.js"></script>
+    <script id="mineInfo-template" type="text/x-handlebars-template">
+        <div class="common-header">
+            <div class="iconModel">
+                <div class="icon-back" onclick="mineInfoBack()">
+                    <a href="#"></a>
+                </div>
+                <div class="headerRight exitIcon">
+                    <a href="javascript:;" onclick="logoutAction()"></a>
+                </div>
+            </div>
+            <div class="thisUserInfo">
+                <div class="userHeadPortrait">
+                    <img src="images/headPortrait.png" />
+                    {{#myInfoImageStatus AppUserInfoResponse.customerProperty}}
+                    <span class="headSmallIcon vip"></span>
+                    {{else}}
+                    <span class="headSmallIcon normal"></span>
+                    {{/myInfoImageStatus}}
+                </div>
+                <div class="userName">{{AppUserInfoResponse.contactUserName}}</div>
+                {{#companyOrPersion AppUserInfoResponse.customerType}}
+                <div>{{AppUserInfoResponse.shortName}}</div>
+                {{else}}
+                <div>{{strReplace AppUserInfoResponse.mobileNumber}}</div>
+                {{/companyOrPersion}}
+            </div>
+        </div>
+        <div class="myLink">
+            <a href="savedtraveller.html">
+                <span class="myLinkIcon commonUsedPassengerIcon"></span>
+                <span>常用旅客</span>
+            </a>
+            <a href="travel-order.html">
+                <span class="myLinkIcon orderListIcon"></span>
+                <span>订单列表</span>
+            </a>
+        </div>
+        <ul class="leftRightList">
+            <li class="clearfix">
+                <span class="left">绑定手机</span>
+                <span class="right">{{strReplace AppUserInfoResponse.mobileNumber}}</span>
+            </li>
+            <li class="clearfix">
+                <span class="left">用户等级</span>
+                <span class="right">{{accountType AppUserInfoResponse.customerProperty}}</span>
+            </li>
+        </ul>
+        <ul class="leftRightList modifiedUserInfo">
+            <li class="clearfix">
+                <a href="details information.html">
+                        <span class="left">
+                            <em class="modifiedDataIcon"></em>
+                            <em>用户资料</em>
+                        </span>
+                    <span class="right">
+                            <em>修改个人资料</em>
+                            <em class="rightIcon"></em>
+                        </span>
+                </a>
+            </li>
+            <li class="clearfix">
+                <a href="modifyPassword.html">
+                        <span class="left">
+                            <em class="modifiedPwIcon"></em>
+                            <em>修改密码</em>
+                        </span>
+                    <span class="right">
+                            <em class="rightIcon"></em>
+                        </span>
+                </a>
+            </li>
+            <li class="clearfix">
+                <a href="tel:4007206666*5">
+                        <span class="left">
+                            <em class="serviceTelIcon"></em>
+                            <em>客服电话</em>
+                        </span>
+                        
+                        <span class="right">
+                            <em class="rightIcon"></em>
+                        </span>
+                        <span class="right">
+                            <em>4007206666*5</em>
+                        </span>
+                </a>
+            </li>
+        </ul>
+    </script>
+    <script>
+        $(function(){
+            //获取用户信息信息
+            mineInfoDetail();
+        });
+
+        function logoutAction() {
+            var mymessage = confirm("是否退出");
+            if (mymessage == true) {
+                var url =  "https://app.travelzen.com/tops-openapi-for-customers/service/flight/basic";
+                if (isOp3)
+                {
+                    url =  "http://192.168.161.137:8480/service/flight/basic";
+                }
+
+                var routeDetail = {};
+                routeDetail.userKey = defaultLoginrespon().userKey;
+
+                var dataRequest = {};
+                dataRequest.requestMetaInfo = requestData();
+                dataRequest.AppLogOutRequest = routeDetail;
+
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    data: JSON.stringify(dataRequest),
+                    type: 'post',
+                    contentType: "application/json;utf-8",
+                    success: function (data) {
+                        if (data.responseMetaInfo.resultCode == 0)
+                        {
+                            if (data.AppLogOutResponse.result == "SUCCESS")
+                            {
+                                //清空所有缓存数据
+                                localStorage.clear();
+                                //重置默认用户数据
+                                defaultLoginrespon();
+                                window.location.href = "index.html";
+                            }
+                            else
+                            {
+                                alert("网络异常");
+                            }
+                        }
+                        else
+                        {
+                            alert("网络异常");
+                        }
+                    },
+                    error: function (data) {
+                        alert("网络异常");
+                    }
+                });
+            } else if (mymessage == false) {
+                return;
+            }
+        }
+
+        function mineInfoBack() {
+            window.location.href = "index.html";
+//            window.location.href = "test.html";
+        }
+        
+        function mineInfoDetail() {
+
+            var localStorage = window.localStorage;
+            var routeDetail = {};
+            routeDetail.loginUserName = localStorage.userName;
+
+            var dataRequest = {};
+            dataRequest.requestMetaInfo = requestData();
+            dataRequest.AppUserInfoRequest = routeDetail;
+
+            var url = normalInfoLink() + "/flight/domestic";
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                data: JSON.stringify(dataRequest),
+                type: 'post',
+                contentType: "application/json;utf-8",
+                success: function (data) {
+                    if(data.responseMetaInfo.resultCode == 0)
+                    {
+                        data.AppUserInfoResponse.mobileNumber = window.localStorage.contactMobile;
+
+                        data.AppUserInfoResponse.contactUserName = window.localStorage.userName;
+
+                        var myTemplate = Handlebars.compile($("#mineInfo-template").html());
+                        $('.mine-infoDetail').html(myTemplate(data));
+                    }
+                    else
+                    {
+                        alert(data.responseMetaInfo.reason);
+                    }
+                },
+                error: function (data) {
+//                    alert("网络异常");
+                }
+            });
+        }
+
+    </script>
+</body>
+
+</html>
