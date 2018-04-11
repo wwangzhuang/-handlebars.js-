@@ -295,6 +295,7 @@
                 type: 'post',
                 contentType: "application/json;utf-8",
                 success: function(data) {
+                    console.log(data)
                     if (data.responseMetaInfo.resultCode == 0) {
                         var myTemplate = Handlebars.compile($("#template-worldView").html());
                         $('#temp-worldView').html(myTemplate(data));
